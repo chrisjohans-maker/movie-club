@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Chris's Movie Club</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Special+Elite&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#0A0500;font-family:'Special Elite',serif;color:#F9F0DC;min-height:100vh}
+.app{max-width:480px;margin:0 auto;padding-bottom:80px}
+.header{text-align:center;padding:1.1rem 1rem .9rem;border-bottom:1px solid #2a1f00}
+.header-rule{height:1px;background:linear-gradient(to right,transparent,#5a3a00,#F5C842,#5a3a00,transparent);margin:0 0 .6rem}
+.header-rule.bottom{margin:.5rem 0 0}
+.bulb-row{display:flex;justify-content:center;gap:16px;margin-bottom:7px}
+.bulb-row.bottom{margin-top:7px;margin-bottom:0}
+.bulb{width:8px;height:8px;border-radius:50%;background:#FFF8C0;flex-shrink:0}
+.bulb.on{box-shadow:0 0 4px 1px #FFF8C0,0 0 10px 3px #FFD700;opacity:1}
+.bulb.dim{opacity:.12}
+.club-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:6px;color:#F5C842;text-shadow:0 0 16px rgba(245,200,66,.3)}
+.club-sub{font-family:'Playfair Display',serif;font-style:italic;font-size:11px;color:#b89a40;margin-top:2px}
+.members-line{font-size:10px;color:#7a6030;letter-spacing:2px;margin-top:4px}
+.snack-bar{display:flex;justify-content:center;gap:18px;padding:.55rem 0;border-top:1px solid #1a1200;margin-top:.6rem}
+.snack-icon{font-size:16px;line-height:1}
+@keyframes nuggetBounce{0%,100%{transform:translateY(0)}45%{transform:translateY(-4px)}70%{transform:translateY(-2px)}}
+@keyframes pizzaSpin{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes beerSlosh{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes whiskeySwirl{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes popcornPop{0%,85%,100%{transform:translateY(0) scale(1)}92%{transform:translateY(-5px) scale(1.15)}}
+.snack-nugget{animation:nuggetBounce 1.2s ease-in-out infinite}
+.snack-pizza{animation:pizzaSpin 2.2s ease-in-out infinite}
+.snack-beer{animation:beerSlosh 1.5s ease-in-out infinite}
+.snack-whiskey{animation:whiskeySwirl 2.5s ease-in-out infinite}
+.snack-popcorn{animation:popcornPop 1.9s ease-in-out infinite}
+.header-top{display:flex;align-items:center;justify-content:flex-end;padding:.4rem .9rem 0}
+.user-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;border:1.5px solid;flex-shrink:0}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#4a8a10;display:inline-block;margin-left:6px;vertical-align:middle}
+.sync-dot.off{background:#6a2020}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:#080400;border-top:1px solid #2a1f00;display:flex;z-index:100}
+.nav-btn{flex:1;padding:10px 2px 8px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1px;color:#5a4020;cursor:pointer;border:none;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav-btn.active{color:#F5C842}
+.nav-icon{font-size:16px;line-height:1}
+.content{padding:.9rem}
+.section-label{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:4px;color:#7a6030;margin:1rem 0 .5rem;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:#2a1f00}
+.card{background:#100800;border:1px solid #2a1f00;padding:.85rem .9rem;margin-bottom:8px}
+.add-btn{width:100%;padding:11px;background:transparent;border:1px solid #3a2f00;color:#b89a40;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;cursor:pointer;margin-bottom:1rem;display:block}
+.card-top{display:flex;gap:10px;margin-bottom:6px}
+.poster{width:52px;height:76px;object-fit:cover;flex-shrink:0;border:1px solid #2a1f00;background:#080400}
+.poster-ph{width:52px;height:76px;flex-shrink:0;border:1px solid #2a1f00;background:#080400;display:flex;align-items:center;justify-content:center;font-size:22px;color:#2a1f00}
+.card-meta{flex:1;min-width:0}
+.movie-title{font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:#F9F0DC;line-height:1.3}
+.movie-year{font-size:11px;color:#7a6030;margin-top:2px}
+.movie-genre{font-size:10px;color:#5a4820;margin-top:2px;font-style:italic}
+.film-director{font-size:10px;color:#5a4820;margin-top:2px;font-family:'Special Elite',serif}
+.film-tagline{font-size:10px;color:#7a6030;font-style:italic;margin-top:3px;line-height:1.4;font-family:'Special Elite',serif}
+.movie-notes{font-size:11px;color:#7a6030;margin-top:3px;line-height:1.4}
+.badge{font-size:10px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;padding:2px 7px;border:1px solid #1a3a4a;color:#4ab0cc}
+.picker-pill{display:inline-block;font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;padding:2px 7px;border:1px solid #3a2f00;color:#b89a40;margin-top:4px}
+.card-actions{display:flex;gap:6px;margin-top:10px;padding-top:9px;border-top:1px solid #1a1200;align-items:center}
+.btn-g{font-size:11px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;padding:8px 12px;cursor:pointer;background:#1a3a00;color:#7de020;border:1px solid #4a8a10}
+.btn-r{font-size:11px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;padding:8px 12px;cursor:pointer;background:#2a0a0a;color:#cc5050;border:1px solid #6a2020}
+.btn-gold{font-size:11px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;padding:8px 12px;cursor:pointer;background:#3a2000;color:#F5C842;border:1px solid #7a5a00}
+.btn-subtle{font-size:10px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;padding:8px 10px;cursor:pointer;background:transparent;color:#5a4020;border:1px solid #2a1f00}
+.scores-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:9px}
+.score-cell{background:#0a0600;border:1px solid #2a1f00;padding:7px 6px;text-align:center}
+.score-cell.mine{border-width:1.5px}
+.score-name{font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:#7a6030;margin-bottom:2px}
+.score-alias{font-size:8px;color:#5a4020;font-style:italic;margin-bottom:3px}
+.score-input{width:100%;background:#050300;border:1px solid #3a2f00;color:#F5C842;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;text-align:center;padding:4px 2px;outline:none}
+.score-input.readonly{color:#555;pointer-events:none;border-color:#1a1200;background:#030200}
+.score-input::placeholder{color:#2a1f00;font-size:14px}
+.tbd-label{font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:3px;color:#4a3820;margin-top:9px;margin-bottom:4px;border-top:1px solid #1a1200;padding-top:7px}
+.avg-line{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:#F5C842;margin-top:7px}
+.avg-line.empty{color:#3a2f00}
+.empty-msg{text-align:center;padding:2.5rem 1rem;color:#3a2f00;font-family:'Playfair Display',serif;font-style:italic;font-size:13px}
+.loading{text-align:center;padding:3rem 1rem;color:#5a4020;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px}
+.form-box{background:#100800;border:1px solid #4a3500;padding:1.1rem;margin-top:.75rem}
+.form-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:4px;color:#F5C842;margin-bottom:.9rem}
+.field{margin-bottom:9px}
+.field label{display:block;font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;color:#7a6030;margin-bottom:3px}
+.field input,.field select,.field textarea{width:100%;background:#0a0600;border:1px solid #2a1f00;color:#F9F0DC;font-family:'Special Elite',serif;font-size:14px;padding:8px 9px;outline:none;-webkit-appearance:none;border-radius:0}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#E8A020}
+.field select option{background:#0a0600}
+.field textarea{height:52px;resize:none}
+.fetch-row{display:flex;gap:6px;align-items:flex-end;margin-bottom:9px}
+.fetch-row .field{flex:1;margin-bottom:0}
+.fetch-btn{padding:8px 10px;font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;background:#1a1800;color:#b89a40;border:1px solid #3a3000;white-space:nowrap;flex-shrink:0}
+.fetch-status{font-size:11px;color:#7a6030;font-style:italic;margin-bottom:6px}
+.fetch-preview{display:flex;gap:10px;align-items:center;background:#0a0600;border:1px solid #2a1f00;padding:8px;margin-bottom:9px}
+.fetch-preview img{width:36px;height:52px;object-fit:cover;border:1px solid #2a1f00;flex-shrink:0}
+.fetch-preview-title{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#F9F0DC}
+.fetch-preview-sub{font-size:10px;color:#7a6030;margin-top:2px}
+.form-actions{display:flex;gap:8px;margin-top:1rem}
+.fbtn{padding:10px 16px;font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:3px;cursor:pointer;border-radius:0}
+.fbtn.primary{background:#3a2800;color:#F5C842;border:1px solid #7a5a00}
+.fbtn.cancel{background:#1a1200;color:#7a6030;border:1px solid #2a1f00}
+.identity-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;text-align:center}
+.identity-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:5px;color:#F5C842;margin-bottom:.5rem}
+.identity-sub{font-family:'Playfair Display',serif;font-style:italic;font-size:13px;color:#7a6030;margin-bottom:2.5rem}
+.member-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:360px}
+.member-card{border:2px solid transparent;padding:1.1rem .9rem;cursor:pointer;text-align:center}
+.member-card-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;margin-bottom:4px}
+.member-card-alias{font-family:'Playfair Display',serif;font-style:italic;font-size:11px;color:#7a6030}
+.tbd-section{margin-top:1.5rem;font-size:10px;color:#4a3820;font-family:'Bebas Neue',sans-serif;letter-spacing:2px}
+.tbd-cards{display:flex;gap:8px;margin-top:.6rem;justify-content:center}
+.tbd-card{background:#0a0600;border:1px solid #2a1f00;padding:.7rem 1.2rem;cursor:pointer;text-align:center;opacity:.6}
+.tbd-card-name{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:#7a6030}
+.tbd-card-alias{font-size:10px;color:#4a3820;font-style:italic;margin-top:2px}
+.personal-panel{border:1px solid transparent;padding:1rem;margin-bottom:1rem}
+.personal-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;margin-bottom:2px}
+.personal-alias{font-family:'Playfair Display',serif;font-style:italic;font-size:12px;margin-bottom:.85rem}
+.personal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:.75rem}
+.pstat{background:rgba(0,0,0,.3);padding:.55rem .4rem;text-align:center}
+.pstat-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#F9F0DC}
+.pstat-label{font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:#5a4020;margin-top:2px}
+.critic-badge{display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;padding:3px 10px;margin-bottom:.6rem}
+.info-banner{font-size:11px;font-family:'Special Elite',serif;font-style:italic;padding:.5rem .7rem;background:rgba(0,0,0,.3);border-left:2px solid;margin-top:.5rem;line-height:1.5}
+.unscored-card{display:flex;align-items:center;gap:10px;background:#100800;border:1px solid #2a1f00;padding:.7rem .85rem;margin-bottom:6px;cursor:pointer}
+.unscored-poster{width:36px;height:52px;object-fit:cover;flex-shrink:0;border:1px solid #2a1f00}
+.unscored-ph{width:36px;height:52px;flex-shrink:0;border:1px solid #2a1f00;background:#080400;display:flex;align-items:center;justify-content:center;font-size:16px;color:#2a1f00}
+.unscored-title{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#F9F0DC;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.unscored-prompt{font-size:10px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;padding:4px 8px;border:1px solid;flex-shrink:0}
+.pulse-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:1.25rem}
+.pulse-card{background:#100800;border:1px solid #2a1f00;position:relative}
+.pulse-poster{width:100%;height:140px;object-fit:cover;display:block;border-bottom:1px solid #2a1f00}
+.pulse-poster-ph{width:100%;height:140px;background:#080400;display:flex;align-items:center;justify-content:center;font-size:24px;color:#2a1f00;border-bottom:1px solid #2a1f00}
+.pulse-info{padding:6px 7px;overflow:hidden}
+.pulse-rank{position:absolute;top:5px;left:5px;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1px;padding:2px 6px;background:rgba(0,0,0,.75)}
+.pulse-title{font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:#F9F0DC;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pulse-score{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;margin-top:2px}
+.pulse-pips{display:flex;gap:2px;margin-top:4px;flex-wrap:wrap}
+.no-screening{padding:3rem 1rem;text-align:center}
+.no-screening-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:4px;color:#5a4020;margin-bottom:.5rem}
+.no-screening-sub{font-family:'Playfair Display',serif;font-style:italic;font-size:13px;color:#3a2f00;margin-bottom:1.5rem}
+.whats-next-card{background:#100800;border:1px solid #2a1f00;padding:.9rem;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+.whats-next-poster{width:60px;height:88px;object-fit:cover;flex-shrink:0;border:1px solid #2a1f00}
+.whats-next-poster-ph{width:60px;height:88px;flex-shrink:0;border:1px solid #2a1f00;background:#080400;display:flex;align-items:center;justify-content:center;font-size:22px;color:#2a1f00}
+.whats-next-meta{flex:1;min-width:0}
+.whats-next-rank{font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:3px;margin-bottom:3px}
+.whats-next-title{font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:#F9F0DC;line-height:1.3;margin-bottom:3px}
+.whats-next-info{font-size:10px;color:#5a4020;font-family:'Special Elite',serif;margin-bottom:5px}
+.whats-next-score{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;margin-bottom:6px}
+.whats-next-pips{display:flex;gap:3px;margin-bottom:8px}
+.date-requests{margin-top:1.25rem}
+.date-req-title{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:4px;color:#7a6030;margin-bottom:.6rem;display:flex;align-items:center;gap:8px}
+.date-req-title::after{content:'';flex:1;height:1px;background:#2a1f00}
+.date-req-row{display:flex;align-items:center;gap:8px;padding:.55rem 0;border-bottom:1px solid #1a1200}
+.date-req-name{font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;min-width:60px;flex-shrink:0}
+.date-req-val{font-size:11px;color:#b89a40;font-family:'Special Elite',serif;flex:1}
+.date-req-empty{font-size:11px;color:#3a2f00;font-style:italic}
+.my-request-form{background:#0a0600;border:1px solid #2a1f00;padding:.85rem;margin-top:.75rem}
+.my-request-title{font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:3px;color:#5a4020;margin-bottom:.6rem}
+.req-row{display:flex;gap:6px;align-items:flex-end}
+.req-row .field{flex:1;margin-bottom:0}
+.screening-wrap{text-align:center;padding:.5rem 0}
+.screening-poster{width:140px;margin:0 auto 1rem;display:block;border:1px solid #2a1f00}
+.screening-poster-ph{width:140px;height:205px;margin:0 auto 1rem;border:1px solid #2a1f00;background:#100800;display:flex;align-items:center;justify-content:center;font-size:40px;color:#2a1f00}
+.screening-title{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;color:#F9F0DC;margin-bottom:.3rem}
+.screening-subtitle{font-size:11px;color:#7a6030;font-style:italic;margin-bottom:1rem}
+.screening-event-label{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:4px;color:#7a6030;margin-bottom:.4rem}
+.screening-date{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#b89a40;margin-bottom:.2rem}
+.screening-times{font-size:12px;color:#5a4020;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;margin-bottom:1.2rem}
+.countdown{display:flex;justify-content:center;gap:8px;margin-bottom:1.25rem}
+.cd-block{background:#100800;border:1px solid #2a1f00;padding:.6rem .7rem;min-width:56px;text-align:center}
+.cd-val{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#F5C842;line-height:1}
+.cd-label{font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;color:#5a4020;margin-top:3px}
+.rsvp-section{margin-bottom:1.25rem}
+.rsvp-title{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:#7a6030;margin-bottom:.6rem}
+.rsvp-grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.rsvp-chip{font-size:11px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;padding:6px 12px;border:1px solid #2a1f00;cursor:pointer;background:transparent;color:#5a4020}
+.rsvp-chip.yes{background:#1a3a00;color:#7de020;border-color:#4a8a10}
+.rsvp-chip.no{background:#2a0a0a;color:#cc5050;border-color:#6a2020}
+.live-scoring{background:#100800;border:1px solid #4a3500;padding:1rem;margin-bottom:1rem}
+.live-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:#F5C842;margin-bottom:.2rem;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.live-sub{font-size:11px;color:#7a6030;font-style:italic;margin-bottom:1rem}
+.schedule-form{background:#100800;border:1px solid #3a2f00;padding:1rem;margin-top:1rem;text-align:left}
+.marquee-banner{background:#1a0f00;border-top:1px solid #3a2f00;border-bottom:1px solid #3a2f00;padding:.5rem 0;overflow:hidden;margin-bottom:.75rem}
+.marquee-inner{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:3px;color:#F5C842;white-space:nowrap;animation:marquee 18s linear infinite}
+@keyframes marquee{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+.interest-row{margin-top:10px;padding-top:10px;border-top:1px solid #1a1200}
+.interest-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.interest-label{font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:3px;color:#5a4020}
+.interest-status{font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+.vote-score-wrap{display:flex;align-items:center;gap:7px;margin-top:5px}
+.vote-score-badge{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1px;padding:2px 8px;border:1px solid #2a1f00;color:#7a6030;flex-shrink:0}
+.vote-score-badge.hot{border-color:#5a3a00;color:#F5C842}
+.vote-pips{display:flex;gap:3px;align-items:center}
+.vote-pip{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.vote-pip.v4{background:#E8A020}.vote-pip.v3{background:#6a9a20}.vote-pip.v2{background:#2a6a8a}.vote-pip.v1{background:#6a2a2a}.vote-pip.none{background:#1a1200}
+.expand-btn{display:flex;align-items:center;gap:6px;margin-top:10px;padding:8px 0;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:3px;color:#7a6030;user-select:none;border-top:1px solid #1a1200}
+.expand-btn:active{color:#F5C842}
+.expand-arrow{font-size:8px;transition:transform .2s}
+.expand-arrow.open{transform:rotate(180deg)}
+.expand-panel{display:none;padding:10px;background:#080400;border:1px solid #1a1200}
+.expand-panel.open{display:block}
+.expand-section{margin-bottom:10px}
+.expand-section:last-child{margin-bottom:0}
+.expand-label{font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:3px;color:#5a4020;margin-bottom:4px}
+.expand-value{font-size:12px;color:#b89a40;font-family:'Special Elite',serif;line-height:1.6}
+.cast-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.cast-chip{font-size:10px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;padding:4px 9px;border:1px solid #2a1f00;color:#7a6030}
+.comments-section{margin-top:.75rem}
+.comment-row{display:flex;align-items:flex-start;gap:8px;padding:.6rem 0;border-bottom:1px solid #1a1200}
+.comment-row:last-child{border-bottom:none}
+.comment-name{font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;min-width:60px;flex-shrink:0;margin-top:2px}
+.comment-text{font-size:12px;color:#b89a40;font-family:'Special Elite',serif;font-style:italic;flex:1;line-height:1.5}
+.comment-input{width:100%;background:#050300;border:1px solid #2a1f00;color:#F9F0DC;font-family:'Special Elite',serif;font-size:13px;padding:6px 8px;outline:none;font-style:italic}
+.comment-input:focus{border-color:#E8A020}
+.comment-input::placeholder{color:#3a2f00}
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem}
+.confirm-box{background:#100800;border:1px solid #4a3500;padding:1.25rem;max-width:320px;width:100%;text-align:center}
+.confirm-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:#F5C842;margin-bottom:.5rem}
+.confirm-sub{font-size:12px;color:#7a6030;font-family:'Special Elite',serif;margin-bottom:1rem;line-height:1.5}
+.confirm-actions{display:flex;gap:8px;justify-content:center}
+.summary-wrap{text-align:center;padding:.5rem 0}
+.summary-poster{width:110px;margin:0 auto .9rem;display:block;border:1px solid #2a1f00}
+.summary-poster-ph{width:110px;height:160px;margin:0 auto .9rem;border:1px solid #2a1f00;background:#100800;display:flex;align-items:center;justify-content:center;font-size:32px;color:#2a1f00}
+.summary-title{font-family:'Playfair Display',serif;font-weight:700;font-size:19px;color:#F9F0DC;margin-bottom:.2rem}
+.summary-sub{font-size:11px;color:#7a6030;font-style:italic;margin-bottom:.75rem}
+.summary-avg{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#F5C842;margin-bottom:.25rem}
+.summary-avg-label{font-size:10px;font-family:'Bebas Neue',sans-serif;letter-spacing:3px;color:#5a4020;margin-bottom:1.25rem}
+.summary-scores{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-bottom:1rem}
+.ss-cell{padding:.6rem .5rem;text-align:center;border:1px solid #2a1f00}
+.ss-name{font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;margin-bottom:2px}
+.ss-score{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#F9F0DC}
+.summary-stat{background:#100800;border:1px solid #2a1f00;padding:.7rem .9rem;margin-bottom:6px;text-align:left}
+.summary-stat-label{font-size:10px;font-family:'Bebas Neue',sans-serif;letter-spacing:3px;color:#5a4020;margin-bottom:3px}
+.summary-stat-val{font-size:13px;color:#F9F0DC;font-family:'Special Elite',serif}
+.panel-section{background:#0a0600;border:1px solid #3a2f00;padding:1rem;margin-top:1.25rem;text-align:left}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:#F5C842;margin-bottom:.25rem}
+.panel-sub{font-size:11px;color:#5a4020;font-style:italic;font-family:'Playfair Display',serif;margin-bottom:1rem}
+.panel-candidate{margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid #1a1200}
+.panel-candidate:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.panel-candidate-name{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;margin-bottom:2px}
+.panel-candidate-alias{font-size:10px;font-style:italic;color:#5a4020;margin-bottom:.7rem}
+.panel-votes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.5rem}
+.panel-vote-chip{font-size:10px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;padding:5px 10px;border:1px solid #2a1f00;cursor:pointer;background:transparent;color:#5a4020}
+.panel-vote-chip.aye{border-color:#4a8a10;color:#7de020;background:#0a1800}
+.panel-vote-chip.nay{border-color:#6a2020;color:#cc5050;background:#1a0505}
+.panel-result{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;padding:4px 10px;display:inline-block;margin-top:.3rem}
+.panel-result.unanimous{border:1px solid #4a8a10;color:#7de020;background:#0a1800}
+.panel-result.pending{border:1px solid #3a2f00;color:#7a6030}
+.panel-result.split{border:1px solid #6a2020;color:#cc5050}
+.panel-promote{font-size:11px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;padding:6px 14px;cursor:pointer;background:#3a2800;color:#F5C842;border:1px solid #7a5a00;margin-top:.5rem;display:inline-block}
+
+.research-wrap{padding:0}
+.research-back{font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:3px;color:#5a4020;cursor:pointer;margin-bottom:.9rem;display:inline-block;padding:4px 0}
+.research-back:active{color:#b89a40}
+.research-btn{width:100%;padding:11px;background:#0a0600;border:1px solid #2a1f00;color:#7a6030;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:.75rem}
+.research-btn:active{background:#100800;color:#b89a40;border-color:#3a2f00}
+.research-home-title{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:#F5C842;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.research-home-title::after{content:'';flex:1;height:1px;background:#2a1f00}
+.browse-cats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem}
+.browse-cat{background:#100800;border:1px solid #2a1f00;padding:1.2rem .9rem;cursor:pointer;text-align:center;position:relative;overflow:hidden}
+.browse-cat:active{border-color:#5a3a00;background:#1a1000}
+.browse-cat-icon{font-size:26px;margin-bottom:6px;line-height:1}
+.browse-cat-label{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:#F5C842}
+.browse-cat-sub{font-size:9px;color:#5a4020;font-family:'Special Elite',serif;font-style:italic;margin-top:3px}
+.browse-search-row{display:flex;gap:6px;margin-bottom:1rem}
+.research-input{flex:1;background:#0a0600;border:1px solid #2a1f00;color:#F9F0DC;font-family:'Special Elite',serif;font-size:14px;padding:9px 10px;outline:none;-webkit-appearance:none;border-radius:0}
+.research-input:focus{border-color:#E8A020}
+.research-input::placeholder{color:#3a2f00}
+.research-search-btn{padding:9px 14px;font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;cursor:pointer;background:#3a2000;color:#F5C842;border:1px solid #7a5a00;white-space:nowrap;flex-shrink:0}
+.browse-filter-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.9rem}
+.browse-filter{font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;padding:6px 12px;border:1px solid #2a1f00;color:#5a4020;cursor:pointer;background:#0a0600}
+.browse-filter:active,.browse-filter.active{border-color:#7a5a00;color:#F5C842;background:#1a1000}
+.research-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.research-card{position:relative;cursor:pointer;background:#100800;border:1px solid #2a1f00}
+.research-card:active{opacity:.8}
+.research-card img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block}
+.research-card-ph{width:100%;aspect-ratio:2/3;background:#080400;display:flex;align-items:center;justify-content:center;font-size:22px;color:#2a1f00}
+.research-card-info{padding:5px 6px}
+.research-card-title{font-family:'Playfair Display',serif;font-size:10px;font-weight:700;color:#F9F0DC;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.research-card-year{font-size:9px;color:#5a4020;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;margin-top:1px}
+.research-card-queued{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.85);border:1px solid #4a8a10;color:#7de020;font-family:'Bebas Neue',sans-serif;font-size:8px;letter-spacing:1px;padding:2px 5px}
+.research-detail{background:#100800;border:1px solid #3a2f00;padding:1rem}
+.research-detail-top{display:flex;gap:12px;margin-bottom:.9rem}
+.research-detail-poster img{width:80px;aspect-ratio:2/3;object-fit:cover;display:block;border:1px solid #2a1f00}
+.research-detail-poster-ph{width:80px;aspect-ratio:2/3;background:#080400;border:1px solid #2a1f00;display:flex;align-items:center;justify-content:center;font-size:24px;color:#2a1f00}
+.research-detail-meta{flex:1;min-width:0}
+.research-detail-title{font-family:'Playfair Display',serif;font-weight:700;font-size:16px;color:#F9F0DC;margin-bottom:3px;line-height:1.3}
+.research-detail-sub{font-size:10px;color:#7a6030;margin-bottom:5px}
+.research-detail-tagline{font-size:11px;color:#b89a40;font-style:italic;font-family:'Special Elite',serif;margin-bottom:.75rem;line-height:1.4}
+.research-detail-overview{font-size:11px;color:#7a6030;font-family:'Special Elite',serif;line-height:1.6;margin-bottom:.9rem}
+.research-queue-btn{width:100%;padding:11px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;cursor:pointer;background:#1a3a00;color:#7de020;border:1px solid #4a8a10;display:block}
+.research-queue-btn.queued{background:#0a1800;color:#4a6a20;border-color:#2a4a00;cursor:default}
+.research-loading{text-align:center;padding:2rem;color:#5a4020;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px}
+.research-empty{text-align:center;padding:2rem 1rem;color:#3a2f00;font-family:'Playfair Display',serif;font-style:italic;font-size:13px}
+</style>
+</head>
+<body>
+<div id="identity-wrap"></div>
+<div class="app" id="main-app" style="display:none">
+  <div class="header-top"><div class="user-avatar" id="user-avatar"></div></div>
+  <div class="header">
+    <div class="bulb-row" id="bulbs-top"></div>
+    <div class="header-rule"></div>
+    <div class="club-title">Chris's Movie Club<span class="sync-dot off" id="sync-dot"></span></div>
+    <div class="club-sub">The Premier Movie Going Experience at the Pinnacle</div>
+    <div class="members-line">Chris · Robert · Lindsey · Charlie</div>
+    <div class="members-line" style="margin-top:3px;font-size:9px;color:#4a3820;font-style:italic">Under Panel Review: Jason · +1</div>
+    <div class="header-rule bottom"></div>
+    <div class="bulb-row bottom" id="bulbs-bot"></div>
+    <div class="snack-bar">
+      <span class="snack-icon snack-nugget">🍗</span>
+      <span class="snack-icon snack-pizza">🍕</span>
+      <span class="snack-icon snack-beer">🍺</span>
+      <span class="snack-icon snack-whiskey">🥃</span>
+      <span class="snack-icon snack-popcorn">🍿</span>
+    </div>
+  </div>
+  <div class="content" id="content"><div class="loading">Connecting...</div></div>
+</div>
+<div class="bottom-nav" id="bottom-nav" style="display:none">
+  <button class="nav-btn active" data-tab="home"><span class="nav-icon">★</span>Home</button>
+  <button class="nav-btn" data-tab="screening"><span class="nav-icon">▶</span>Next Screening</button>
+  <button class="nav-btn" data-tab="watchlist"><span class="nav-icon">◎</span>To Watch</button>
+  <button class="nav-btn" data-tab="watched"><span class="nav-icon">✦</span>Watched</button>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, writeBatch, getDocs, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCQQFVSxW-gd-u325ZBz1QMk5XwsyguJfk",
+  authDomain: "chrismoviewclub.firebaseapp.com",
+  projectId: "chrismoviewclub",
+  storageBucket: "chrismoviewclub.firebasestorage.app",
+  messagingSenderId: "1026253658838",
+  appId: "1:1026253658838:web:20a3581ab0babe0d23c777"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+const TMDB_KEY = '02f99115d00fd3bfe5702b1c133ec1a3';
+const TMDB_IMG = 'https://image.tmdb.org/t/p/w300';
+
+const PROFILES = {
+  'Chris':   { alias:'The Chairman',    color:'#E8A020', bg:'#2a1800', border:'#5a3a00' },
+  'Robert':  { alias:'The Philosopher', color:'#4ab0cc', bg:'#001a22', border:'#1a4a5a' },
+  'Lindsey': { alias:'The Auteur',      color:'#c87db8', bg:'#1a0020', border:'#4a1a5a' },
+  'Charlie': { alias:'The Maverick',    color:'#7de020', bg:'#0a1800', border:'#2a5a00' },
+  'Jason':   { alias:'The Initiate',    color:'#aaaaaa', bg:'#1a1a1a', border:'#3a3a3a' },
+  '+1':      { alias:'The Mystery',     color:'#888888', bg:'#181818', border:'#303030' },
+};
+const MEMBERS     = ['Chris','Robert','Lindsey','Charlie'];
+const MEMBERS_TBD = ['Jason','+1'];
+const ALL_MEMBERS = [...MEMBERS,...MEMBERS_TBD];
+const INTEREST_LEVELS = [
+  {val:4,label:'Must See',cls:'v4'},
+  {val:3,label:'Want to See',cls:'v3'},
+  {val:2,label:'Maybe',cls:'v2'},
+  {val:1,label:'Pass',cls:'v1'},
+];
+
+const SEED_WATCHLIST = [
+  {id:'w1',title:'This Is Spinal Tap',year:'',picker:'Chris',notes:'',priority:'high',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:10},
+  {id:'w2',title:'All That Jazz',year:'',picker:'Chris',notes:'',priority:'high',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:20},
+  {id:'w3',title:'The Stuff',year:'',picker:'Chris',notes:'',priority:'med',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:30},
+  {id:'w4',title:'Days of Heaven',year:'',picker:'Chris',notes:'',priority:'med',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:40},
+  {id:'w5',title:'Playtime',year:'',picker:'Chris',notes:'',priority:'med',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:50},
+  {id:'w6',title:'The Worst Person in the World',year:'',picker:'Chris',notes:'',priority:'med',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:60},
+  {id:'w7',title:'Seconds',year:'',picker:'Chris',notes:'',priority:'low',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:70},
+  {id:'w8',title:"Don't Look Now",year:'',picker:'Chris',notes:'',priority:'low',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:80},
+  {id:'w9',title:'Charade',year:'',picker:'Chris',notes:'',priority:'low',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:90},
+  {id:'w10',title:'Boy on a Dolphin',year:'',picker:'Chris',notes:'',priority:'low',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:100},
+  {id:'w11',title:'A Girl in Black',year:'',picker:'Chris',notes:'',priority:'low',votes:{},interestVotes:{},poster:null,genre:'',tmdb:null,sortOrder:110},
+];
+const SEED_WATCHED = [
+  {id:'v1',title:'Down by Law',year:'',picker:'Chris',ratings:{},poster:null,genre:'',tmdb:null},
+  {id:'v2',title:'Anselm',year:'',picker:'Chris',ratings:{},poster:null,genre:'',tmdb:null},
+  {id:'v3',title:'Videodrome',year:'',picker:'Chris',ratings:{},poster:null,genre:'',tmdb:null},
+  {id:'v4',title:'The Taking of Pelham One Two Three',year:'',picker:'Chris',ratings:{},poster:null,genre:'',tmdb:null},
+  {id:'v5',title:'Rushmore',year:'',picker:'Chris',ratings:{},poster:null,genre:'',tmdb:null},
+];
+
+let state = {
+  tab:'home', showForm:false, fd:{},
+  watchlist:[], watched:[], loaded:false,
+  currentUser:null,
+  screening:null, membership:{votes:{}}, dateRequests:{requests:{}},
+  countdownInterval:null, editingId:null, confirmAction:null, summaryId:null,
+  research:{active:false, results:[], query:'', loading:false, selected:null, mode:'home', category:null, filter:null}
+};
+
+/* ── BULBS ── */
+function initBulbs() {
+  const COUNT=12;
+  ['bulbs-top','bulbs-bot'].forEach(rowId=>{
+    const el=document.getElementById(rowId);
+    if(!el)return;
+    el.innerHTML=Array.from({length:COUNT},(_,i)=>`<span class="bulb dim" data-i="${i}"></span>`).join('');
+  });
+  let phase=0;
+  setInterval(()=>{
+    phase=(phase+1)%12;
+    ['bulbs-top','bulbs-bot'].forEach(rowId=>{
+      const el=document.getElementById(rowId);
+      if(!el)return;
+      el.querySelectorAll('.bulb').forEach((b,i)=>{
+        b.className='bulb '+(i%3===phase%3?'on':'dim');
+      });
+    });
+  },280);
+}
+initBulbs();
+
+/* ── IDENTITY ── */
+function showIdentityScreen() {
+  const wrap=document.getElementById('identity-wrap');
+  wrap.innerHTML=`<div class="identity-screen">
+    <div class="identity-title">Who are you?</div>
+    <div class="identity-sub">Choose your seat in the screening room</div>
+    <div class="member-cards">
+      ${MEMBERS.map(n=>{const p=PROFILES[n];return `<div class="member-card" data-member="${n}" style="border-color:${p.border};background:${p.bg}"><div class="member-card-name" style="color:${p.color}">${n}</div><div class="member-card-alias">${p.alias}</div></div>`;}).join('')}
+    </div>
+    <div class="tbd-section">Under Panel Review</div>
+    <div class="tbd-cards">
+      ${MEMBERS_TBD.map(n=>{const p=PROFILES[n];return `<div class="tbd-card" data-member="${n}"><div class="tbd-card-name">${n}</div><div class="tbd-card-alias">${p.alias}</div></div>`;}).join('')}
+    </div>
+  </div>`;
+  wrap.querySelectorAll('[data-member]').forEach(el=>el.addEventListener('click',()=>selectUser(el.dataset.member)));
+}
+
+function selectUser(name) {
+  localStorage.setItem('cmc_user',name);
+  state.currentUser=name;
+  document.getElementById('identity-wrap').innerHTML='';
+  document.getElementById('main-app').style.display='block';
+  document.getElementById('bottom-nav').style.display='flex';
+  updateAvatar(name);
+  initFirestore();
+}
+
+function updateAvatar(name) {
+  const el=document.getElementById('user-avatar');
+  if(!el||!name)return;
+  const p=PROFILES[name];
+  el.textContent=name.slice(0,2).toUpperCase();
+  el.style.background=p.bg;
+  el.style.color=p.color;
+  el.style.borderColor=p.border;
+  el.title=name+' · '+p.alias+' · Tap to switch';
+}
+
+/* ── NAV ── */
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    state.tab=btn.dataset.tab;
+    state.showForm=false;
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    if(state.countdownInterval){clearInterval(state.countdownInterval);state.countdownInterval=null;}
+    render();
+  });
+});
+
+/* ── FIRESTORE ── */
+async function initFirestore() {
+  const wSnap=await getDocs(collection(db,'watchlist'));
+  if(wSnap.empty){
+    const batch=writeBatch(db);
+    SEED_WATCHLIST.forEach(m=>batch.set(doc(db,'watchlist',m.id),m));
+    SEED_WATCHED.forEach(m=>batch.set(doc(db,'watched',m.id),m));
+    await batch.commit();
+  }
+  onSnapshot(collection(db,'watchlist'),snap=>{
+    state.watchlist=snap.docs.map(d=>({...d.data(),id:d.id}));
+    state.watchlist.forEach((m,i)=>{if(m.sortOrder==null)m.sortOrder=i*10;});
+    if(state.loaded)render();
+    fetchMissingData(state.watchlist,'watchlist');
+  });
+  onSnapshot(collection(db,'watched'),snap=>{
+    state.watched=snap.docs.map(d=>({...d.data(),id:d.id}));
+    state.loaded=true;
+    document.getElementById('sync-dot').classList.remove('off');
+    render();
+    fetchMissingData(state.watched,'watched');
+  });
+  onSnapshot(doc(db,'config','screening'),snap=>{
+    state.screening=snap.exists()?snap.data():null;
+    if(state.loaded){checkScreeningExpiry();render();}
+  });
+  onSnapshot(doc(db,'config','membership'),snap=>{
+    state.membership=snap.exists()?snap.data():{votes:{}};
+    if(state.loaded)render();
+  });
+  onSnapshot(doc(db,'config','dateRequests'),snap=>{
+    state.dateRequests=snap.exists()?snap.data():{requests:{}};
+    if(state.loaded)render();
+  });
+}
+
+async function fetchMissingData(movies,coll) {
+  for(const m of movies){
+    if(m.poster&&m.director&&m.cast)continue;
+    try{
+      const r=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(m.title)}&language=en-US&page=1`);
+      const d=await r.json();const hit=d.results&&d.results[0];
+      if(!hit)continue;
+      const updates={};
+      if(!m.poster&&hit.poster_path)updates.poster=TMDB_IMG+hit.poster_path;
+      if(!m.year&&hit.release_date)updates.year=hit.release_date.slice(0,4);
+      if(!m.tmdb&&hit.vote_average)updates.tmdb=hit.vote_average.toFixed(1);
+      try{
+        const dr=await fetch(`https://api.themoviedb.org/3/movie/${hit.id}?api_key=${TMDB_KEY}&language=en-US&append_to_response=credits`);
+        const dd=await dr.json();
+        if(!m.genre&&dd.genres&&dd.genres.length)updates.genre=dd.genres[0].name;
+        if(!m.director||m.director===''){const dir=dd.credits&&dd.credits.crew&&dd.credits.crew.find(c=>c.job==='Director');if(dir)updates.director=dir.name;}
+        if(!m.runtime&&dd.runtime)updates.runtime=dd.runtime;
+        if(!m.tagline||m.tagline==='')updates.tagline=dd.tagline||'';
+        if(!m.overview&&dd.overview)updates.overview=dd.overview;
+        if(!m.cast&&dd.credits&&dd.credits.cast)updates.cast=dd.credits.cast.slice(0,4).map(a=>a.name).join(', ');
+      }catch(e){}
+      if(Object.keys(updates).length)await updateDoc(doc(db,coll,m.id),updates);
+    }catch(e){}
+  }
+}
+
+/* ── HELPERS ── */
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function getCriticBadge(avg,count){if(count<2)return 'Unproven';if(avg>=8.5)return 'The Optimist';if(avg<=5.5)return 'The Hardliner';if(avg>=7.5)return 'The Enthusiast';if(avg>=6.5)return 'The Measured';return 'The Realist';}
+function isLive(){if(!state.screening||!state.screening.showtime)return false;return Date.now()>=new Date(state.screening.showtime).getTime();}
+function isExpired(){if(!state.screening||!state.screening.showtime)return false;return Date.now()>=new Date(state.screening.showtime).getTime()+(4*60*60*1000);}
+function formatDate(iso){if(!iso)return '';return new Date(iso).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}
+function formatTime(iso){if(!iso)return '';return new Date(iso).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+function getInterestScore(m){const iv=m.interestVotes||{};const vals=ALL_MEMBERS.map(n=>iv[n]).filter(v=>v>0);if(!vals.length)return 0;return vals.reduce((a,b)=>a+b,0)/vals.length;}
+function getInterestLabel(score){if(score>=3.5)return 'Must Screen';if(score>=2.5)return 'Want to See';if(score>=1.5)return 'Maybe';if(score>0)return 'Low Interest';return 'Unvoted';}
+
+/* ── RENDER ── */
+function render() {
+  const c=document.getElementById('content');
+  if(!state.loaded){c.innerHTML=`<div class="loading">Connecting...</div>`;return;}
+  if(state.showForm==='add-movie'){c.innerHTML=buildAddMovieForm();bindForm();return;}
+  if(state.showForm==='research'){c.innerHTML=buildResearch();bindResearch();return;}
+  if(state.showForm==='schedule'){c.innerHTML=buildScheduleForm();bindScheduleForm();return;}
+  if(state.showForm==='edit'){c.innerHTML=buildEditForm();bindEditForm();return;}
+  if(state.showForm==='summary'){c.innerHTML=buildSummary();bindSummary();return;}
+  if(state.tab==='home')c.innerHTML=buildHome();
+  else if(state.tab==='screening')c.innerHTML=buildScreening();
+  else if(state.tab==='watchlist')c.innerHTML=buildWatchlist();
+  else c.innerHTML=buildWatched();
+  bindEvents();
+  if(state.tab==='screening'&&state.screening&&!isExpired())startCountdown();
+}
+
+function bindEvents() {
+  document.getElementById('add-btn')?.addEventListener('click',()=>{state.fd={};state.showForm='add-movie';render();});
+  document.getElementById('research-btn')?.addEventListener('click',()=>{state.research={active:true,results:[],query:'',loading:false,selected:null};state.showForm='research';render();});
+  document.getElementById('user-avatar')?.addEventListener('click',()=>{
+    if(confirm('Switch member? Current: '+state.currentUser)){
+      localStorage.removeItem('cmc_user');
+      if(state.countdownInterval)clearInterval(state.countdownInterval);
+      document.getElementById('main-app').style.display='none';
+      document.getElementById('bottom-nav').style.display='none';
+      showIdentityScreen();
+    }
+  });
+  document.getElementById('schedule-btn')?.addEventListener('click',()=>{state.showForm='schedule';render();});
+  document.getElementById('clear-screening-btn')?.addEventListener('click',clearScreening);
+  document.getElementById('show-summary-btn')?.addEventListener('click',e=>{const wid=e.currentTarget.dataset.watchedId;if(wid){state.summaryId=wid;state.showForm='summary';render();}});
+  document.getElementById('submit-req-btn')?.addEventListener('click',()=>{const date=document.getElementById('req-date')?.value;const time=document.getElementById('req-time')?.value;if(date&&time)saveDateRequest(date,time);});
+  document.querySelectorAll('[data-schedule-film]').forEach(btn=>btn.addEventListener('click',()=>{state.fd=state.fd||{};state.fd._preselect=btn.dataset.scheduleFilm;state.showForm='schedule';render();}));
+  document.querySelectorAll('.rsvp-yes,.rsvp-no').forEach(el=>el.addEventListener('click',()=>setRsvp(el.dataset.member,el.classList.contains('rsvp-yes')?'yes':'no')));
+  document.querySelectorAll('[data-panel-vote]').forEach(el=>el.addEventListener('click',()=>castMembershipVote(el.dataset.panelCandidate,el.dataset.panelVote)));
+  document.querySelectorAll('[data-promote]').forEach(el=>el.addEventListener('click',()=>promoteCandidate(el.dataset.promote)));
+  document.querySelectorAll('[data-interest-id]').forEach(el=>el.addEventListener('click',()=>castInterestVote(el.dataset.interestId,parseInt(el.dataset.interestVal))));
+  document.querySelectorAll('[data-action]').forEach(el=>el.addEventListener('click',()=>{
+    const{action,id}=el.dataset;
+    if(action==='view-summary'){state.summaryId=id;state.showForm='summary';render();}
+    if(action==='confirm-remove-watch')showConfirm(id,'watchlist');
+    if(action==='confirm-remove-watched')showConfirm(id,'watched');
+    if(action==='go-watched'){state.tab='watched';document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===3));render();}
+    if(action==='go-watchlist'){state.tab='watchlist';document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===2));render();}
+  }));
+  document.querySelectorAll('.score-input:not(.readonly)').forEach(el=>el.addEventListener('change',()=>saveScore(el.dataset.id,el.dataset.member,el.value)));
+  document.querySelectorAll('.comment-input').forEach(el=>el.addEventListener('change',()=>saveComment(el.dataset.id,el.dataset.member,el.value)));
+}
+
+function bindForm(){document.getElementById('fetch-btn')?.addEventListener('click',fetchTMDB);document.getElementById('submit-btn')?.addEventListener('click',submitAdd);document.getElementById('cancel-btn')?.addEventListener('click',()=>{state.showForm=false;render();});}
+function bindScheduleForm(){document.getElementById('schedule-submit')?.addEventListener('click',submitSchedule);document.getElementById('schedule-cancel')?.addEventListener('click',()=>{state.showForm=false;render();});}
+function bindEditForm(){document.getElementById('edit-submit-btn')?.addEventListener('click',submitEdit);document.getElementById('edit-cancel-btn')?.addEventListener('click',()=>{state.showForm=false;state.editingId=null;render();});}
+function bindSummary(){document.getElementById('summary-back')?.addEventListener('click',()=>{state.showForm=false;state.summaryId=null;render();});document.querySelectorAll('.comment-input').forEach(el=>el.addEventListener('change',()=>saveComment(el.dataset.id,el.dataset.member,el.value)));}
+
+/* ── INTEREST GRID ── */
+function buildInterestGrid(movieId,myVote) {
+  const levels=[
+    {val:4,icon:'★',name:'Must See',sub:'Top priority',bc:'#7a5a00',bg:'#1e1000',tc:'#F5C842'},
+    {val:3,icon:'★',name:'Want to See',sub:'Keen',bc:'#3a6000',bg:'#0c1800',tc:'#90c830'},
+    {val:2,icon:'◆',name:'Maybe',sub:'On the fence',bc:'#1a4060',bg:'#001420',tc:'#4090c0'},
+    {val:1,icon:'✕',name:'Pass',sub:'Not for me',bc:'#5a2020',bg:'#180606',tc:'#c06060'},
+  ];
+  return levels.map(l=>{
+    const sel=myVote===l.val;
+    return `<div data-interest-id="${movieId}" data-interest-val="${l.val}"
+      style="border:1px solid ${sel?l.bc:'#2a1f00'};background:${sel?l.bg:'#080400'};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 6px;text-align:center;user-select:none">
+      <div style="font-size:18px;line-height:1;color:${sel?l.tc:'#2a1f00'}">${l.icon}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:${sel?l.tc:'#3a2f00'}">${l.name}</div>
+      <div style="font-size:9px;font-family:'Special Elite',serif;font-style:italic;color:${sel?l.bc:'#1a1200'}">${l.sub}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── EXPAND PANEL ── */
+function buildExpandPanel(m) {
+  return `<div class="expand-btn" data-expand-id="${m.id}"><span class="expand-arrow" id="arrow-${m.id}">▼</span><span>More Info</span></div>
+  <div class="expand-panel" id="expand-${m.id}">
+    ${m.overview?`<div class="expand-section"><div class="expand-label">Synopsis</div><div class="expand-value">${esc(m.overview)}</div></div>`:''}
+    ${m.cast?`<div class="expand-section"><div class="expand-label">Cast</div><div class="cast-chips">${m.cast.split(', ').map(a=>`<span class="cast-chip">${esc(a)}</span>`).join('')}</div></div>`:''}
+    ${m.tmdb?`<div class="expand-section"><div class="expand-label">TMDB Score</div><div style="display:flex;align-items:center;gap:8px;margin-top:3px"><div style="flex:1;height:3px;background:#1a1200"><div style="width:${Math.round(parseFloat(m.tmdb)*10)}%;height:100%;background:#4ab0cc"></div></div><span style="font-family:'Bebas Neue',sans-serif;font-size:11px;color:#4ab0cc">${m.tmdb}/10</span></div></div>`:''}
+    ${m.year||m.genre?`<div class="expand-section"><div class="expand-label">Details</div><div class="expand-value">${[m.year,m.genre,m.runtime?m.runtime+'min':''].filter(Boolean).join(' · ')}</div></div>`:''}
+  </div>`;
+}
+
+/* ── COMMENTS ── */
+function buildCommentsSection(m,u) {
+  const comments=m.comments||{};
+  const hasAny=ALL_MEMBERS.some(n=>comments[n])||ALL_MEMBERS.includes(u);
+  if(!hasAny)return '';
+  let html=`<div class="comments-section"><div class="tbd-label" style="border:none;margin-top:.75rem;padding-top:0">Reviews</div>`;
+  ALL_MEMBERS.forEach(n=>{
+    const np=PROFILES[n];const isMe=n===u;const text=comments[n]||'';
+    if(!text&&!isMe)return;
+    html+=`<div class="comment-row"><div class="comment-name" style="color:${np.color}">${n}</div>${isMe?`<input class="comment-input" placeholder="Your one-liner..." value="${esc(text)}" data-id="${m.id}" data-member="${n}" maxlength="80"/>`:`<div class="comment-text">"${esc(text)}"</div>`}</div>`;
+  });
+  return html+'</div>';
+}
+
+/* ── HOME ── */
+function buildHome() {
+  const u=state.currentUser;const p=PROFILES[u];
+  const w=state.watched;
+  const myScores=w.map(m=>m.ratings&&m.ratings[u]).filter(v=>v>0);
+  const myAvg=myScores.length?(myScores.reduce((a,b)=>a+b,0)/myScores.length).toFixed(1):'—';
+  const myHigh=myScores.length?Math.max(...myScores):null;
+  const myLow=myScores.length?Math.min(...myScores):null;
+  const badge=getCriticBadge(parseFloat(myAvg),myScores.length);
+  const myHighFilm=myHigh?w.find(m=>m.ratings&&m.ratings[u]===myHigh):null;
+  const myPick=state.watchlist.find(m=>m.picker===u);
+  const unscored=w.filter(m=>!m.ratings||!m.ratings[u]);
+  const sc=state.screening;
+  let html='';
+  if(sc){const live=isLive();html+=`<div class="marquee-banner"><div class="marquee-inner">${live?'● NOW SCREENING':'◆ NEXT SCREENING'} &nbsp;·&nbsp; ${esc(sc.title)} &nbsp;·&nbsp; ${formatDate(sc.showtime)} &nbsp;·&nbsp; Doors ${formatTime(sc.doorsTime)} &nbsp;·&nbsp; Showtime ${formatTime(sc.showtime)} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></div>`;}
+  html+=`<div class="personal-panel" style="border-color:${p.border};background:${p.bg}">
+    <div class="personal-name" style="color:${p.color}">${u}</div>
+    <div class="personal-alias" style="color:${p.color}">${p.alias}</div>
+    <div class="personal-stats">
+      <div class="pstat"><div class="pstat-val">${myAvg}</div><div class="pstat-label">Your avg</div></div>
+      <div class="pstat"><div class="pstat-val">${myHigh||'—'}</div><div class="pstat-label">Highest</div></div>
+      <div class="pstat"><div class="pstat-val">${myLow||'—'}</div><div class="pstat-label">Lowest</div></div>
+    </div>
+    <span class="critic-badge" style="background:${p.border};color:${p.color}">${badge}</span>
+    ${myHighFilm?`<div class="info-banner" style="border-color:${p.border};color:${p.color}">Top rated: ${esc(myHighFilm.title)}</div>`:''}
+    ${myPick?`<div class="info-banner" style="border-color:${p.border};color:${p.color}">Your pick in queue: ${esc(myPick.title)}</div>`:''}
+  </div>`;
+  // Club Pulse
+  const ranked=[...state.watchlist].filter(m=>!state.screening||m.id!==state.screening.movieId).map(m=>({...m,score:getInterestScore(m)})).sort((a,b)=>b.score-a.score).slice(0,3);
+  html+=`<div class="section-label">Club Pulse</div>`;
+  if(ranked.length&&ranked[0].score>0){
+    const rankColors=['#F5C842','#aaaaaa','#8B5E3C'];const rankLabels=['1st','2nd','3rd'];
+    html+=`<div class="pulse-grid">`;
+    ranked.forEach((m,i)=>{
+      const iv=m.interestVotes||{};const myV=iv[u]||0;
+      const scoreColor=m.score>=3.5?'#F5C842':m.score>=2.5?'#90c830':'#4090c0';
+      const pips=ALL_MEMBERS.map(n=>{const v=iv[n];const c=v===4?'#E8A020':v===3?'#6a9a20':v===2?'#2a6a8a':v===1?'#6a2a2a':'#1a1200';return `<span style="width:6px;height:6px;border-radius:50%;background:${c};display:inline-block;flex-shrink:0"></span>`;}).join('');
+      html+=`<div class="pulse-card">
+        ${m.poster?`<img class="pulse-poster" src="${m.poster}" alt="${esc(m.title)}" loading="lazy"/>`:`<div class="pulse-poster-ph">🎬</div>`}
+        <div class="pulse-rank" style="color:${rankColors[i]}">${rankLabels[i]}</div>
+        <div class="pulse-info">
+          <div class="pulse-title">${esc(m.title)}</div>
+          ${m.year||m.genre?`<div style="font-size:9px;color:#5a4020;font-family:'Special Elite',serif;margin-top:2px">${[m.year,m.genre].filter(Boolean).join(' · ')}</div>`:''}
+          ${m.director?`<div style="font-size:9px;color:#4a3820;font-family:'Special Elite',serif;margin-top:1px">Dir. ${esc(m.director)}</div>`:''}
+          ${m.tagline?`<div style="font-size:9px;color:#5a4820;font-style:italic;font-family:'Special Elite',serif;margin-top:2px;line-height:1.3">${esc(m.tagline)}</div>`:''}
+          <div class="pulse-score" style="color:${scoreColor};margin-top:4px">${m.score.toFixed(1)}</div>
+          <div class="pulse-pips">${pips}</div>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }else{html+=`<div style="text-align:center;padding:1.5rem;color:#3a2f00;font-family:'Playfair Display',serif;font-style:italic;font-size:12px;border:1px solid #1a1200">Cast your interest votes on the To Watch tab to see the Club Pulse.</div>`;}
+  if(unscored.length){
+    html+=`<div class="section-label">Score These</div>`;
+    unscored.slice(0,5).forEach(m=>{html+=`<div class="unscored-card" data-action="go-watched" data-id="${m.id}">${m.poster?`<img class="unscored-poster" src="${m.poster}" alt="${esc(m.title)}" loading="lazy"/>`:`<div class="unscored-ph">🎬</div>`}<div class="unscored-title">${esc(m.title)}</div><span class="unscored-prompt" style="border-color:${p.border};color:${p.color}">Score</span></div>`;});
+  }
+  return html;
+}
+
+/* ── SCREENING ── */
+function buildScreening() {
+  const sc=state.screening;const u=state.currentUser;const canSchedule=u==='Chris';
+  if(!sc||isExpired())return buildWhatsNext(canSchedule,u);
+  const live=isLive();const rsvp=sc.rsvp||{};
+  let html=`<div class="screening-wrap">`;
+  if(live){
+    html+=`<div class="live-scoring"><div class="live-title">● NOW SCREENING</div><div class="live-sub">Scoring is open — enter your rating below</div>`;
+    const we=state.watched.find(m=>m.id===sc.watchedId);
+    if(we){
+      const r=we.ratings||{};const vals=MEMBERS.map(n=>r[n]).filter(v=>v>0);const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):null;
+      html+=`<div class="avg-line${avg?'':' empty'}" id="avg-${we.id}" style="text-align:center;margin-bottom:.75rem">${avg?'Club Avg: '+avg+' / 10':'Scores coming in...'}</div>`;
+      html+=`<div class="scores-grid">${MEMBERS.map(n=>{const np=PROFILES[n];const isMe=n===u;return `<div class="score-cell${isMe?' mine':''}" style="${isMe?`border-color:${np.color};background:${np.bg}`:''}"><div class="score-name" style="${isMe?`color:${np.color}`:''}\">${n}</div><input class="score-input${isMe?'':' readonly'}" type="number" min="1" max="10" inputmode="numeric" placeholder="—" value="${r[n]||''}" data-id="${we.id}" data-member="${n}" ${isMe?'':'readonly'}/></div>`;}).join('')}</div>`;
+      html+=`<div style="margin-top:.75rem;text-align:center"><button class="btn-gold" id="show-summary-btn" data-watched-id="${we.id}">View Full Summary</button></div>`;
+    }
+    html+=`</div>`;
+  }
+  html+=sc.poster?`<img class="screening-poster" src="${sc.poster}" alt="${esc(sc.title)}" loading="lazy"/>`:`<div class="screening-poster-ph">🎬</div>`;
+  html+=`<div class="screening-title">${esc(sc.title)}</div>`;
+  if(sc.year||sc.genre)html+=`<div class="screening-subtitle">${sc.year||''}${sc.year&&sc.genre?' · ':''}${sc.genre||''}</div>`;
+  html+=`<div class="screening-event-label">Next Screening</div><div class="screening-date">${formatDate(sc.showtime)}</div><div class="screening-times">Doors ${formatTime(sc.doorsTime)} &nbsp;·&nbsp; Showtime ${formatTime(sc.showtime)}</div>`;
+  if(!live){html+=`<div class="countdown" id="countdown"><div class="cd-block"><div class="cd-val" id="cd-d">--</div><div class="cd-label">Days</div></div><div class="cd-block"><div class="cd-val" id="cd-h">--</div><div class="cd-label">Hours</div></div><div class="cd-block"><div class="cd-val" id="cd-m">--</div><div class="cd-label">Min</div></div><div class="cd-block"><div class="cd-val" id="cd-s">--</div><div class="cd-label">Sec</div></div></div>`;}
+  html+=`<div class="rsvp-section"><div class="rsvp-title">Who's Coming</div><div class="rsvp-grid">`;
+  ALL_MEMBERS.forEach(n=>{const np=PROFILES[n];const status=rsvp[n];const isMe=n===u;const isTbd=MEMBERS_TBD.includes(n);html+=`<div style="text-align:center;opacity:${isTbd?.6:1}"><div style="font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:${np.color};margin-bottom:4px">${n}${isTbd?'*':''}</div><div style="display:flex;gap:4px;justify-content:center"><span class="rsvp-chip${status==='yes'?' yes':''}${isMe?' mine':''}" style="${status==='yes'?`border-color:${np.color};color:${np.color}`:''}"><span class="rsvp-yes" data-member="${n}">✓</span></span><span class="rsvp-chip${status==='no'?' no':''}${isMe?' mine':''}"><span class="rsvp-no" data-member="${n}">✗</span></span></div></div>`;});
+  html+=`</div></div>`;
+  if(canSchedule)html+=`<div style="display:flex;gap:8px;justify-content:center;margin-top:.5rem"><button class="btn-gold" id="schedule-btn">Change Screening</button><button class="btn-r" id="clear-screening-btn">Clear</button></div>`;
+  html+=buildMembershipPanel();
+  html+=`</div>`;
+  return html;
+}
+
+function startCountdown() {
+  if(state.countdownInterval)clearInterval(state.countdownInterval);
+  function tick(){
+    if(!state.screening)return;
+    const diff=new Date(state.screening.showtime).getTime()-Date.now();
+    if(diff<=0){clearInterval(state.countdownInterval);render();return;}
+    const pad=n=>String(n).padStart(2,'0');
+    const d=Math.floor(diff/86400000);const h=Math.floor((diff%86400000)/3600000);const m=Math.floor((diff%3600000)/60000);const s=Math.floor((diff%60000)/1000);
+    const dEl=document.getElementById('cd-d');const hEl=document.getElementById('cd-h');const mEl=document.getElementById('cd-m');const sEl=document.getElementById('cd-s');
+    if(dEl)dEl.textContent=d;if(hEl)hEl.textContent=pad(h);if(mEl)mEl.textContent=pad(m);if(sEl)sEl.textContent=pad(s);
+  }
+  tick();state.countdownInterval=setInterval(tick,1000);
+}
+
+/* ── WHAT'S NEXT ── */
+function buildWhatsNext(canSchedule,u) {
+  const ranked=[...state.watchlist].map(m=>({...m,score:getInterestScore(m)})).filter(m=>m.score>0).sort((a,b)=>b.score-a.score).slice(0,3);
+  const reqs=(state.dateRequests&&state.dateRequests.requests)||{};
+  const rankColors=['#F5C842','#aaaaaa','#8B5E3C'];const rankLabels=['1st','2nd','3rd'];const myReq=reqs[u];
+  let html=`<div style="text-align:center;margin-bottom:1.25rem"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:5px;color:#F5C842;margin-bottom:4px">What's Next?</div><div style="font-family:'Playfair Display',serif;font-style:italic;font-size:12px;color:#7a6030">The screening room is ready for its next selection</div></div>`;
+  if(ranked.length){
+    html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:4px;color:#7a6030;margin-bottom:.6rem;display:flex;align-items:center;gap:8px">Top Picks<span style="flex:1;height:1px;background:#2a1f00;display:block"></span></div>`;
+    ranked.forEach((m,i)=>{
+      const iv=m.interestVotes||{};const scoreColor=m.score>=3.5?'#F5C842':m.score>=2.5?'#90c830':'#4090c0';
+      const pips=ALL_MEMBERS.map(n=>{const v=iv[n];const c=v===4?'#E8A020':v===3?'#6a9a20':v===2?'#2a6a8a':v===1?'#6a2a2a':'#1a1200';return `<span style="width:7px;height:7px;border-radius:50%;background:${c};display:inline-block"></span>`;}).join('');
+      html+=`<div class="whats-next-card">
+        ${m.poster?`<img class="whats-next-poster" src="${m.poster}" alt="${esc(m.title)}" loading="lazy"/>`:`<div class="whats-next-poster-ph">🎬</div>`}
+        <div class="whats-next-meta">
+          <div class="whats-next-rank" style="color:${rankColors[i]}">${rankLabels[i]} Choice</div>
+          <div class="whats-next-title">${esc(m.title)}</div>
+          <div class="whats-next-info">${[m.year,m.genre,m.director?'Dir. '+m.director:''].filter(Boolean).join(' · ')}</div>
+          <div class="whats-next-score" style="color:${scoreColor}">Interest: ${m.score.toFixed(1)}</div>
+          <div class="whats-next-pips">${pips}</div>
+          ${canSchedule?`<button class="btn-gold" data-schedule-film="${m.id}" style="font-size:10px;padding:6px 12px;letter-spacing:2px">Schedule This ↗</button>`:''}
+        </div>
+      </div>`;
+    });
+  }
+  html+=`<div class="date-requests"><div class="date-req-title">Availability Requests</div>`;
+  ALL_MEMBERS.forEach(n=>{const np=PROFILES[n];const req=reqs[n];html+=`<div class="date-req-row"><div class="date-req-name" style="color:${np.color}">${n}</div>${req?`<div class="date-req-val">${esc(req.date)} at ${esc(req.time)}</div>`:`<div class="date-req-empty">No request yet</div>`}</div>`;});
+  html+=`</div><div class="my-request-form"><div class="my-request-title">Submit Your Availability</div><div class="req-row"><div class="field"><label>Date</label><input type="date" id="req-date" value="${myReq?myReq.date:''}"/></div><div class="field"><label>Time</label><input type="time" id="req-time" value="${myReq?myReq.time:'19:30'}"/></div><button class="fbtn primary" id="submit-req-btn" style="flex-shrink:0;align-self:flex-end">Submit</button></div>${myReq?`<div style="font-size:10px;color:#7a6030;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;margin-top:6px">Your request: ${esc(myReq.date)} at ${esc(myReq.time)} ✓</div>`:''}</div>`;
+  return html;
+}
+
+async function saveDateRequest(date,time){if(!date||!time)return;const reqs={...((state.dateRequests&&state.dateRequests.requests)||{})};reqs[state.currentUser]={date,time};await setDoc(doc(db,'config','dateRequests'),{requests:reqs});}
+
+/* ── SCHEDULE FORM ── */
+function buildScheduleForm() {
+  const preselect=state.fd&&state.fd._preselect;
+  const now=new Date();const defaultDate=now.toISOString().slice(0,10);
+  return `<div class="form-box">
+    <div class="form-title">Schedule Screening</div>
+    <div class="field"><label>Select Film from Queue</label>
+      <select id="s-film">
+        <option value="">— Choose a film —</option>
+        ${state.watchlist.map(m=>`<option value="${m.id}"${preselect===m.id?' selected':''}>${esc(m.title)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>Date</label><input type="date" id="s-date" value="${defaultDate}"/></div>
+    <div class="field"><label>Doors Time</label><input type="time" id="s-doors" value="19:00"/></div>
+    <div class="field"><label>Showtime</label><input type="time" id="s-show" value="19:30"/></div>
+    <div class="form-actions">
+      <button class="fbtn primary" id="schedule-submit">Schedule</button>
+      <button class="fbtn cancel" id="schedule-cancel">Cancel</button>
+    </div>
+  </div>`;
+}
+
+async function submitSchedule() {
+  const filmId=document.getElementById('s-film').value;const date=document.getElementById('s-date').value;const doors=document.getElementById('s-doors').value;const show=document.getElementById('s-show').value;
+  if(!filmId||!date||!show)return;
+  const film=state.watchlist.find(m=>m.id===filmId);if(!film)return;
+  await setDoc(doc(db,'config','screening'),{movieId:film.id,title:film.title,poster:film.poster||null,year:film.year||'',genre:film.genre||'',doorsTime:new Date(`${date}T${doors}`).toISOString(),showtime:new Date(`${date}T${show}`).toISOString(),rsvp:{},watchedId:null,scheduledBy:state.currentUser,autoMoved:false});
+  // Clear date requests when new screening is set
+  await setDoc(doc(db,'config','dateRequests'),{requests:{}});
+  state.showForm=false;state.tab='screening';state.fd={};
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===1));render();
+}
+
+async function clearScreening(){await deleteDoc(doc(db,'config','screening'));}
+async function setRsvp(member,status){if(!state.screening)return;const rsvp={...(state.screening.rsvp||{})};rsvp[member]=rsvp[member]===status?null:status;await updateDoc(doc(db,'config','screening'),{rsvp});}
+
+/* ── SCREENING EXPIRY ── */
+function checkScreeningExpiry(){if(!state.screening)return;if(isExpired()&&state.screening.movieId&&!state.screening.autoMoved)handleScreeningExpiry();}
+async function handleScreeningExpiry(){const sc=state.screening;if(!sc||sc.autoMoved)return;await updateDoc(doc(db,'config','screening'),{autoMoved:true});const film=state.watchlist.find(x=>x.id===sc.movieId);if(film&&!sc.watchedId){const newId='v'+Date.now();const batch=writeBatch(db);batch.set(doc(db,'watched',newId),{...film,id:newId,ratings:{}});batch.delete(doc(db,'watchlist',sc.movieId));await batch.commit();await updateDoc(doc(db,'config','screening'),{watchedId:newId});}}
+
+/* ── MEMBERSHIP ── */
+async function castMembershipVote(candidate,vote){const current=state.membership||{votes:{}};const votes={...(current.votes||{})};if(!votes[candidate])votes[candidate]={};if(votes[candidate][state.currentUser]===vote)delete votes[candidate][state.currentUser];else votes[candidate][state.currentUser]=vote;await setDoc(doc(db,'config','membership'),{votes});}
+async function promoteCandidate(candidate){if(state.currentUser!=='Chris')return;const current=state.membership||{votes:{}};const promoted={...(current.promoted||{})};promoted[candidate]=true;await updateDoc(doc(db,'config','membership'),{promoted});}
+function buildMembershipPanel(){const u=state.currentUser;const mv=(state.membership&&state.membership.votes)||{};const promoted=(state.membership&&state.membership.promoted)||{};const rsvp=(state.screening&&state.screening.rsvp)||{};const presentCandidates=MEMBERS_TBD.filter(n=>rsvp[n]==='yes'&&!promoted[n]);if(!presentCandidates.length)return '';let html=`<div class="panel-section"><div class="panel-title">Panel Review</div><div class="panel-sub">Cast your vote — unanimous approval required</div>`;presentCandidates.forEach(candidate=>{const cp=PROFILES[candidate];const cv=mv[candidate]||{};const ayeVoters=MEMBERS.filter(n=>cv[n]==='aye');const nayVoters=MEMBERS.filter(n=>cv[n]==='nay');const isUnanimous=ayeVoters.length===MEMBERS.length;const hasNay=nayVoters.length>0;const myVote=cv[u];const canVote=MEMBERS.includes(u);html+=`<div class="panel-candidate"><div class="panel-candidate-name" style="color:${cp.color}">${candidate}</div><div class="panel-candidate-alias">${cp.alias}</div><div class="panel-votes">${MEMBERS.map(n=>{const np=PROFILES[n];const v=cv[n];return `<span class="panel-vote-chip${v==='aye'?' aye':v==='nay'?' nay':''}" style="${v==='aye'?`border-color:${np.color};color:${np.color}`:''}" data-panel-voter="${n}" data-panel-candidate="${candidate}">${n} ${v==='aye'?'✓':v==='nay'?'✗':'?'}</span>`;}).join('')}</div>`;if(isUnanimous){html+=`<div class="panel-result unanimous">Unanimous — Approved</div>`;if(u==='Chris')html+=`<br><button class="panel-promote" data-promote="${candidate}">Promote to Full Member</button>`;}else if(hasNay){html+=`<div class="panel-result split">${nayVoters.length} Nay — Not Approved</div>`;}else{html+=`<div class="panel-result pending">${ayeVoters.length} / ${MEMBERS.length} Ayes</div>`;}if(canVote)html+=`<div style="display:flex;gap:6px;margin-top:.6rem"><button class="panel-vote-chip${myVote==='aye'?' aye':''}" data-panel-vote="aye" data-panel-candidate="${candidate}">Aye ${myVote==='aye'?'✓':''}</button><button class="panel-vote-chip${myVote==='nay'?' nay':''}" data-panel-vote="nay" data-panel-candidate="${candidate}">Nay ${myVote==='nay'?'✗':''}</button></div>`;html+=`</div>`;});return html+'</div>';}
+
+/* ── WATCHLIST ── */
+function buildWatchlist() {
+  const u=state.currentUser;
+  const nextId=state.screening?state.screening.movieId:null;
+  const sorted=[...state.watchlist].sort((a,b)=>{if(a.id===nextId)return -1;if(b.id===nextId)return 1;const sa=getInterestScore(a);const sb=getInterestScore(b);if(sb!==sa)return sb-sa;return(a.sortOrder||0)-(b.sortOrder||0);});
+  let html=`
+    <button class="research-btn" id="research-btn">
+      <span style="font-size:14px">🔍</span> Research the Criterion Collection
+    </button>
+    <button class="add-btn" id="add-btn">+ Add to the Roster</button>`;
+  if(!sorted.length)return html+`<div class="empty-msg">The screening room awaits its first selection.</div>`;
+  sorted.forEach(m=>{
+    const pickerP=PROFILES[m.picker]||PROFILES['Chris'];
+    const isNext=state.screening&&state.screening.movieId===m.id;
+    const sc=state.screening;
+    const iv=m.interestVotes||{};const myVote=iv[u]||0;
+    const score=getInterestScore(m);const scoreLabel=getInterestLabel(score);const isHot=score>=3.5;
+    const pips=ALL_MEMBERS.map(n=>{const v=iv[n];const cls=v===4?'v4':v===3?'v3':v===2?'v2':v===1?'v1':'none';return `<span class="vote-pip ${cls}" title="${n}"></span>`;}).join('');
+    html+=`<div class="card"${isNext?' style="border-color:#F5C842;border-width:1.5px"':''}>
+      ${isNext?`<div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:#F5C842;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span style="animation:pulse 1.5s ease-in-out infinite;display:inline-block">▶</span><span>Next Screening</span>${sc&&sc.showtime?`<span style="color:#b89a40;font-size:10px;letter-spacing:2px">· ${formatDate(sc.showtime)} · ${formatTime(sc.showtime)}</span>`:''}</div>`:''}
+      <div class="card-top">
+        ${m.poster?`<img class="poster" src="${m.poster}" alt="${esc(m.title)}" loading="lazy"/>`:`<div class="poster-ph">🎬</div>`}
+        <div class="card-meta">
+          <div class="movie-title">${esc(m.title)}</div>
+          ${m.year?`<div class="movie-year">${m.year}</div>`:''}
+          ${m.genre?`<div class="movie-genre">${m.genre}</div>`:''}
+          ${m.director?`<div class="film-director">Dir. ${esc(m.director)}${m.runtime?' · '+m.runtime+'m':''}</div>`:''}
+          ${m.tagline?`<div class="film-tagline">${esc(m.tagline)}</div>`:''}
+          ${m.notes?`<div class="movie-notes">${esc(m.notes)}</div>`:''}
+          <div class="picker-pill" style="border-color:${pickerP.border};color:${pickerP.color}">${m.picker}'s pick</div>
+          ${m.tmdb?`<div style="margin-top:4px"><span class="badge">TMDB ${m.tmdb}</span></div>`:''}
+          <div class="vote-score-wrap">
+            <span class="vote-score-badge${isHot?' hot':''}">${score>0?score.toFixed(1)+' · '+scoreLabel:scoreLabel}</span>
+            <div class="vote-pips">${pips}</div>
+          </div>
+          ${buildExpandPanel(m)}
+        </div>
+      </div>
+      <div class="interest-row">
+        <div class="interest-header">
+          <div class="interest-label">Your Interest</div>
+          <div class="interest-status" style="color:${myVote===4?'#E8A020':myVote===3?'#90c830':myVote===2?'#4090c0':myVote===1?'#c06060':'#3a2f00'}">${myVote?INTEREST_LEVELS.find(l=>l.val===myVote)?.label+' ✓':'Not voted'}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${buildInterestGrid(m.id,myVote)}</div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-r" data-action="confirm-remove-watch" data-id="${m.id}">Remove</button>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+/* ── WATCHED ── */
+function buildWatched() {
+  const u=state.currentUser;
+  if(!state.watched.length)return `<div class="empty-msg">No screenings on record yet.</div>`;
+  return [...state.watched].reverse().map(m=>{
+    const r=m.ratings||{};const vals=MEMBERS.map(n=>r[n]).filter(v=>v>0);const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):null;const pickerP=PROFILES[m.picker]||PROFILES['Chris'];
+    return `<div class="card">
+      <div class="card-top">
+        ${m.poster?`<img class="poster" src="${m.poster}" alt="${esc(m.title)}" loading="lazy"/>`:`<div class="poster-ph">🎬</div>`}
+        <div class="card-meta">
+          <div class="movie-title">${esc(m.title)}</div>
+          ${m.year?`<div class="movie-year">${m.year}</div>`:''}
+          ${m.genre?`<div class="movie-genre">${m.genre}</div>`:''}
+          ${m.director?`<div class="film-director">Dir. ${esc(m.director)}${m.runtime?' · '+m.runtime+'m':''}</div>`:''}
+          ${m.tagline?`<div class="film-tagline">${esc(m.tagline)}</div>`:''}
+          <div class="picker-pill" style="border-color:${pickerP.border};color:${pickerP.color}">${m.picker}'s pick</div>
+          <div class="avg-line${avg?'':' empty'}" id="avg-${m.id}">${avg?'Club Avg: '+avg+' / 10':'No scores yet'}</div>
+          ${m.tmdb?`<div style="margin-top:4px"><span class="badge">TMDB ${m.tmdb}</span></div>`:''}
+          ${buildExpandPanel(m)}
+        </div>
+      </div>
+      <div class="scores-grid">
+        ${MEMBERS.map(n=>{const np=PROFILES[n];const isMe=n===u;return `<div class="score-cell${isMe?' mine':''}" style="${isMe?`border-color:${np.color};background:${np.bg}`:''}"><div class="score-name" style="${isMe?`color:${np.color}`:''}\">${n}</div><div class="score-alias" style="${isMe?`color:${np.color}`:'color:#3a2f00'}">${np.alias}</div><input class="score-input${isMe?'':' readonly'}" type="number" min="1" max="10" inputmode="numeric" placeholder="—" value="${r[n]||''}" data-id="${m.id}" data-member="${n}" ${isMe?'':'readonly'}/></div>`;}).join('')}
+      </div>
+      <div class="tbd-label">Under Panel Review</div>
+      <div class="scores-grid">
+        ${MEMBERS_TBD.map(n=>{const np=PROFILES[n];const isMe=n===u;return `<div class="score-cell${isMe?' mine':''}" style="${isMe?`border-color:${np.color};background:${np.bg};opacity:1`:''}"><div class="score-name" style="${isMe?`color:${np.color}`:''}\">${n}</div><input class="score-input${isMe?'':' readonly'}" type="number" min="1" max="10" inputmode="numeric" placeholder="—" value="${r[n]||''}" data-id="${m.id}" data-member="${n}" ${isMe?'':'readonly'}/></div>`;}).join('')}
+      </div>
+      ${buildCommentsSection(m,u)}
+      <div class="card-actions">
+        <button class="btn-gold" data-action="view-summary" data-id="${m.id}">View Summary</button>
+        <button class="btn-r" data-action="confirm-remove-watched" data-id="${m.id}">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── ADD MOVIE FORM ── */
+function buildAddMovieForm() {
+  const fd=state.fd||{};
+  return `<div class="form-box">
+    <div class="form-title">Add to the Roster</div>
+    <div class="fetch-row">
+      <div class="field"><label>Title</label><input id="f-title" placeholder="Film title" value="${esc(fd.title||'')}"/></div>
+      <button class="fetch-btn" id="fetch-btn">Fetch ↗</button>
+    </div>
+    ${fd.status?`<div class="fetch-status">${fd.status}</div>`:''}
+    ${fd.poster?`<div class="fetch-preview"><img src="${fd.poster}" alt="poster"/><div><div class="fetch-preview-title">${esc(fd.title||'')}</div><div class="fetch-preview-sub">${fd.year||''}${fd.genre?' · '+fd.genre:''}</div>${fd.tmdb?`<div class="fetch-preview-sub">TMDB ${fd.tmdb}</div>`:''}</div></div>`:''}
+    <div class="field"><label>Year</label><input id="f-year" type="number" inputmode="numeric" placeholder="1984" value="${esc(fd.year||'')}"/></div>
+    <input type="hidden" id="f-picker" value="${state.currentUser}"/>
+    <div class="field"><label>Priority</label>
+      <select id="f-priority">
+        <option value="high"${(fd.priority||'high')==='high'?' selected':''}>Must Screen</option>
+        <option value="med"${fd.priority==='med'?' selected':''}>Next Up</option>
+        <option value="low"${fd.priority==='low'?' selected':''}>On the Docket</option>
+      </select>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="f-notes" placeholder="Brief notes">${esc(fd.notes||'')}</textarea></div>
+    <div class="form-actions">
+      <button class="fbtn primary" id="submit-btn">Add Film</button>
+      <button class="fbtn cancel" id="cancel-btn">Cancel</button>
+    </div>
+  </div>`;
+}
+
+async function fetchTMDB() {
+  const title=(document.getElementById('f-title')?.value||'').trim();if(!title)return;
+  state.fd.title=title;state.fd.status='Fetching…';render();
+  try{
+    const r=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${encodeURIComponent(title)}&language=en-US&page=1`);
+    const d=await r.json();const hit=d.results&&d.results[0];
+    if(hit){
+      state.fd.poster=hit.poster_path?TMDB_IMG+hit.poster_path:null;state.fd.year=hit.release_date?hit.release_date.slice(0,4):'';state.fd.tmdb=hit.vote_average?hit.vote_average.toFixed(1):null;
+      if(!state.fd.notes&&hit.overview)state.fd.notes=hit.overview.slice(0,90)+(hit.overview.length>90?'…':'');
+      try{
+        const dr=await fetch(`https://api.themoviedb.org/3/movie/${hit.id}?api_key=${TMDB_KEY}&language=en-US&append_to_response=credits`);const dd=await dr.json();
+        state.fd.genre=dd.genres&&dd.genres.length?dd.genres[0].name:'';
+        const dir=dd.credits&&dd.credits.crew&&dd.credits.crew.find(c=>c.job==='Director');if(dir)state.fd.director=dir.name;
+        if(dd.runtime)state.fd.runtime=dd.runtime;if(dd.tagline)state.fd.tagline=dd.tagline;if(dd.overview)state.fd.overview=dd.overview;
+        if(dd.credits&&dd.credits.cast)state.fd.cast=dd.credits.cast.slice(0,4).map(a=>a.name).join(', ');
+      }catch(e){}
+      state.fd.status='';
+    }else{state.fd.status='Not found — add manually.';}
+  }catch(e){state.fd.status='Fetch failed.';}
+  render();
+}
+
+async function submitAdd() {
+  const title=(document.getElementById('f-title')?.value||'').trim();if(!title)return;
+  const fd=state.fd||{};const id='w'+Date.now();
+  const maxOrder=state.watchlist.reduce((max,m)=>Math.max(max,m.sortOrder||0),0);
+  await setDoc(doc(db,'watchlist',id),{id,title,year:document.getElementById('f-year')?.value||fd.year||'',picker:state.currentUser,priority:document.getElementById('f-priority')?.value||'high',notes:document.getElementById('f-notes')?.value||fd.notes||'',poster:fd.poster||null,genre:fd.genre||'',tmdb:fd.tmdb||null,director:fd.director||'',runtime:fd.runtime||null,tagline:fd.tagline||'',overview:fd.overview||'',cast:fd.cast||'',votes:{},interestVotes:{},sortOrder:maxOrder+10});
+  state.showForm=false;state.tab='watchlist';state.fd={};document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===2));render();
+}
+
+/* ── EDIT FORM ── */
+function buildEditForm() {
+  const m=state.watchlist.find(x=>x.id===state.editingId);if(!m)return '';
+  return `<div class="form-box">
+    <div class="form-title">Edit Film</div>
+    <div class="field"><label>Title</label><input id="e-title" value="${esc(m.title)}"/></div>
+    <div class="field"><label>Year</label><input id="e-year" type="number" inputmode="numeric" value="${esc(m.year||'')}"/></div>
+    <div class="field"><label>Priority</label>
+      <select id="e-priority">
+        <option value="high"${m.priority==='high'?' selected':''}>Must Screen</option>
+        <option value="med"${m.priority==='med'?' selected':''}>Next Up</option>
+        <option value="low"${m.priority==='low'?' selected':''}>On the Docket</option>
+      </select>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="e-notes">${esc(m.notes||'')}</textarea></div>
+    <div class="form-actions">
+      <button class="fbtn primary" id="edit-submit-btn">Save</button>
+      <button class="fbtn cancel" id="edit-cancel-btn">Cancel</button>
+    </div>
+  </div>`;
+}
+async function submitEdit(){const id=state.editingId;if(!id)return;const title=(document.getElementById('e-title')?.value||'').trim();if(!title)return;await updateDoc(doc(db,'watchlist',id),{title,year:document.getElementById('e-year')?.value||'',priority:document.getElementById('e-priority')?.value||'high',notes:document.getElementById('e-notes')?.value||''});state.showForm=false;state.editingId=null;render();}
+
+/* ── SUMMARY ── */
+function buildSummary() {
+  const m=state.watched.find(x=>x.id===state.summaryId);if(!m)return `<div class="empty-msg">Film not found.</div>`;
+  const u=state.currentUser;const r=m.ratings||{};const comments=m.comments||{};
+  const memberScores=MEMBERS.map(n=>({name:n,score:r[n]||null})).filter(x=>x.score);const vals=memberScores.map(x=>x.score);
+  const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):null;
+  const sorted=[...memberScores].sort((a,b)=>b.score-a.score);const highest=sorted[0];const lowest=sorted[sorted.length-1];
+  const spread=highest&&lowest&&highest.name!==lowest.name?highest.score-lowest.score:0;
+  let closestPair=null,closestDiff=99,biggestPair=null,biggestDiff=0;
+  for(let i=0;i<memberScores.length;i++)for(let j=i+1;j<memberScores.length;j++){const diff=Math.abs(memberScores[i].score-memberScores[j].score);if(diff<closestDiff){closestDiff=diff;closestPair=[memberScores[i].name,memberScores[j].name];}if(diff>biggestDiff){biggestDiff=diff;biggestPair=[memberScores[i].name,memberScores[j].name];}}
+  const pickerP=PROFILES[m.picker]||PROFILES['Chris'];
+  let html=`<div class="summary-wrap"><div style="font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:3px;color:#5a4020;margin-bottom:.75rem;cursor:pointer" id="summary-back">← Back</div>`;
+  html+=m.poster?`<img class="summary-poster" src="${m.poster}" alt="${esc(m.title)}" loading="lazy"/>`:`<div class="summary-poster-ph">🎬</div>`;
+  html+=`<div class="summary-title">${esc(m.title)}</div><div class="summary-sub">${m.year||''}${m.year&&m.genre?' · ':''}${m.genre||''} · <span style="color:${pickerP.color}">${m.picker}'s pick</span></div>`;
+  if(avg)html+=`<div class="summary-avg">${avg}</div><div class="summary-avg-label">Club Average</div>`;
+  html+=`<div class="summary-scores">${MEMBERS.map(n=>{const np=PROFILES[n];const score=r[n];return `<div class="ss-cell" style="border-color:${np.border};background:${np.bg}"><div class="ss-name" style="color:${np.color}">${n}</div><div class="ss-score" style="color:${score?np.color:'#3a2f00'}">${score||'—'}</div></div>`;}).join('')}</div>`;
+  if(highest&&lowest&&highest.name!==lowest.name)html+=`<div class="summary-stat"><div class="summary-stat-label">Highest Score</div><div class="summary-stat-val" style="color:${PROFILES[highest.name].color}">${highest.name} — ${highest.score}/10</div></div><div class="summary-stat"><div class="summary-stat-label">Lowest Score</div><div class="summary-stat-val" style="color:${PROFILES[lowest.name].color}">${lowest.name} — ${lowest.score}/10</div></div>`;
+  if(spread>0)html+=`<div class="summary-stat"><div class="summary-stat-label">Score Spread</div><div class="summary-stat-val">${spread} pts — ${spread>=4?'Controversial':'Consensus'}</div></div>`;
+  if(biggestPair&&biggestDiff>=2)html+=`<div class="summary-stat"><div class="summary-stat-label">Biggest Disagreement</div><div class="summary-stat-val"><span style="color:${PROFILES[biggestPair[0]].color}">${biggestPair[0]}</span> vs <span style="color:${PROFILES[biggestPair[1]].color}">${biggestPair[1]}</span> (${biggestDiff} pts apart)</div></div>`;
+  if(closestPair&&closestDiff===0)html+=`<div class="summary-stat"><div class="summary-stat-label">Perfect Agreement</div><div class="summary-stat-val"><span style="color:${PROFILES[closestPair[0]].color}">${closestPair[0]}</span> & <span style="color:${PROFILES[closestPair[1]].color}">${closestPair[1]}</span> — identical scores</div></div>`;
+  else if(closestPair)html+=`<div class="summary-stat"><div class="summary-stat-label">Closest Scores</div><div class="summary-stat-val"><span style="color:${PROFILES[closestPair[0]].color}">${closestPair[0]}</span> & <span style="color:${PROFILES[closestPair[1]].color}">${closestPair[1]}</span> (${closestDiff} pt apart)</div></div>`;
+  if(m.tmdb)html+=`<div class="summary-stat"><div class="summary-stat-label">TMDB Rating</div><div class="summary-stat-val">${m.tmdb}/10 — Club ${avg&&parseFloat(avg)>parseFloat(m.tmdb)?'rated higher':'rated lower'} than audiences</div></div>`;
+  const hasComments=ALL_MEMBERS.some(n=>comments[n]||n===u);
+  if(hasComments){html+=`<div style="margin-top:1rem;text-align:left"><div class="tbd-label" style="border:none;padding-top:0;margin-bottom:.5rem">One-Liners</div>`;ALL_MEMBERS.forEach(n=>{const np=PROFILES[n];const isMe=n===u;const text=comments[n]||'';if(!text&&!isMe)return;html+=`<div class="comment-row"><div class="comment-name" style="color:${np.color}">${n}</div>${isMe?`<input class="comment-input" placeholder="Your one-liner..." value="${esc(text)}" data-id="${m.id}" data-member="${n}" maxlength="80"/>`:`<div class="comment-text">"${esc(text)}"</div>`}</div>`;});html+=`</div>`;}
+  return html+'</div>';
+}
+
+/* ── DATA OPS ── */
+async function saveScore(id,member,val){const v=parseInt(val);const m=state.watched.find(x=>x.id===id);if(!m)return;const ratings={...(m.ratings||{})};if(v>=1&&v<=10)ratings[member]=v;else delete ratings[member];await updateDoc(doc(db,'watched',id),{ratings});const vals=MEMBERS.map(n=>ratings[n]).filter(v=>v>0);const el=document.getElementById('avg-'+id);if(el){if(vals.length){el.textContent='Club Avg: '+(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1)+' / 10';el.className='avg-line';}else{el.textContent='No scores yet';el.className='avg-line empty';}}}
+async function castInterestVote(id,val){const m=state.watchlist.find(x=>x.id===id);if(!m)return;const iv={...(m.interestVotes||{})};if(iv[state.currentUser]===val)delete iv[state.currentUser];else iv[state.currentUser]=val;await updateDoc(doc(db,'watchlist',id),{interestVotes:iv});}
+async function saveComment(id,member,val){const text=val.trim().slice(0,80);const m=state.watched.find(x=>x.id===id);if(!m)return;const comments={...(m.comments||{})};if(text)comments[member]=text;else delete comments[member];await updateDoc(doc(db,'watched',id),{comments});}
+async function del(id,list){await deleteDoc(doc(db,list,id));}
+
+function showConfirm(id,list){
+  const m=list==='watchlist'?state.watchlist.find(x=>x.id===id):state.watched.find(x=>x.id===id);if(!m)return;
+  const overlay=document.createElement('div');overlay.className='confirm-overlay';
+  overlay.innerHTML=`<div class="confirm-box"><div class="confirm-title">Remove Film?</div><div class="confirm-sub"><em style="color:#b89a40">${esc(m.title)}</em><br><br>This cannot be undone.</div><div class="confirm-actions"><button class="btn-r" id="c-yes">Remove</button><button class="fbtn cancel" id="c-no">Cancel</button></div></div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#c-no').addEventListener('click',()=>overlay.remove());
+  overlay.querySelector('#c-yes').addEventListener('click',()=>{
+    overlay.innerHTML=`<div class="confirm-box"><div class="confirm-title" style="color:#cc5050">Are You Sure?</div><div class="confirm-sub" style="line-height:1.7"><span style="font-size:16px">⚠️</span><br>Chris will be mad if you remove<br><em style="color:#b89a40">${esc(m.title)}</em><br>by mistake.</div><div class="confirm-actions"><button class="btn-r" id="c-final">Yes, Remove It</button><button class="fbtn cancel" id="c-no2">Cancel</button></div></div>`;
+    overlay.querySelector('#c-no2').addEventListener('click',()=>overlay.remove());
+    overlay.querySelector('#c-final').addEventListener('click',()=>{del(id,list);overlay.remove();});
+  });
+}
+
+/* ── CRITERION DATA ── */
+const CRITERION = [
+  // Drama
+  {id:422,title:"Rashomon",year:"1950",director:"Akira Kurosawa",genre:"Drama",country:"Japan",tmdb:8.2,poster:"/kYAP2zkHnHIaXbMPBKTMGI7M26y.jpg"},
+  {id:11798,title:"The 400 Blows",year:"1959",director:"François Truffaut",genre:"Drama",country:"France",tmdb:8.1,poster:"/sxMkQGKoLoqvVpqzqASF4LFOS0J.jpg"},
+  {id:298,title:"Breathless",year:"1960",director:"Jean-Luc Godard",genre:"Drama",country:"France",tmdb:7.7,poster:"/e0NIHCcaRKqJLMdGUnjgmxXiXQk.jpg"},
+  {id:11216,title:"La Dolce Vita",year:"1960",director:"Federico Fellini",genre:"Drama",country:"Italy",tmdb:8.0,poster:"/8DFfEDJiJEQJWLMbEO7JFJl0ooU.jpg"},
+  {id:8950,title:"8½",year:"1963",director:"Federico Fellini",genre:"Drama",country:"Italy",tmdb:8.0,poster:"/fQnQpOzOo7lEqDBGJEPpXV71kp5.jpg"},
+  {id:36685,title:"Contempt",year:"1963",director:"Jean-Luc Godard",genre:"Drama",country:"France",tmdb:7.6,poster:"/6YGlvJSh8sGsUBTxwh1LK2dVm1k.jpg"},
+  {id:14537,title:"Persona",year:"1966",director:"Ingmar Bergman",genre:"Drama",country:"Sweden",tmdb:8.1,poster:"/6OA0eaePMpUYaMqVSlzX9SdEZRb.jpg"},
+  {id:11202,title:"The Wild Bunch",year:"1969",director:"Sam Peckinpah",genre:"Western",country:"USA",tmdb:7.9,poster:"/j23XOPMXP8bqAFHW9RQNJ9VkaJD.jpg"},
+  {id:756,title:"Scenes from a Marriage",year:"1973",director:"Ingmar Bergman",genre:"Drama",country:"Sweden",tmdb:8.2,poster:"/bJO0dYi8A3wEDZpZJMDZL2CLHF9.jpg"},
+  {id:9358,title:"Ali: Fear Eats the Soul",year:"1974",director:"Rainer Werner Fassbinder",genre:"Drama",country:"Germany",tmdb:7.9,poster:"/c4HUBXMPMCfSiAf1l6b4qsK35h7.jpg"},
+  {id:280,title:"Chinatown",year:"1974",director:"Roman Polanski",genre:"Crime",country:"USA",tmdb:8.1,poster:"/aowPvxfXhHYBb7LGLFVDhU8bvLs.jpg"},
+  {id:14947,title:"Jeanne Dielman",year:"1975",director:"Chantal Akerman",genre:"Drama",country:"Belgium",tmdb:7.7,poster:"/eoK5FMG7YcCAlB9hWpXN7O4DJEX.jpg"},
+  {id:37799,title:"Aguirre, the Wrath of God",year:"1972",director:"Werner Herzog",genre:"Adventure",country:"Germany",tmdb:7.8,poster:"/bxEgjHOzAxDAYLSr2MBMzPUHJbS.jpg"},
+  {id:11330,title:"Andrei Rublev",year:"1966",director:"Andrei Tarkovsky",genre:"Drama",country:"Russia",tmdb:8.1,poster:"/dAFXzMbomjdqSAavjBRCcHi2JiW.jpg"},
+  {id:10268,title:"The Shining",year:"1980",director:"Stanley Kubrick",genre:"Horror",country:"USA",tmdb:8.4,poster:"/b6ko0IKC8MdYBBPkkA1aBPLe2yz.jpg"},
+  {id:11,title:"Star Wars",year:"1977",director:"George Lucas",genre:"Sci-Fi",country:"USA",tmdb:8.6,poster:"/6FfCtAuVAW8XJjZ7eWeLibRLWTw.jpg"},
+  // Horror
+  {id:968,title:"Nosferatu",year:"1922",director:"F.W. Murnau",genre:"Horror",country:"Germany",tmdb:7.9,poster:"/5tkB4SLK88YMmDEjCIqJMGnuSVx.jpg"},
+  {id:76203,title:"Videodrome",year:"1983",director:"David Cronenberg",genre:"Horror",country:"Canada",tmdb:7.2,poster:"/joCo4v1T7xFmJq53XRYE5aYhS69.jpg"},
+  {id:9552,title:"The Silence of the Lambs",year:"1991",director:"Jonathan Demme",genre:"Horror",country:"USA",tmdb:8.3,poster:"/rplLJ2hPcOQmkFhTqUte0MkosOB.jpg"},
+  {id:37735,title:"Onibaba",year:"1964",director:"Kaneto Shindo",genre:"Horror",country:"Japan",tmdb:7.5,poster:"/txIJSaxhvkCiHqzCW5M3G0OJ6pq.jpg"},
+  {id:748,title:"The Night of the Hunter",year:"1955",director:"Charles Laughton",genre:"Horror",country:"USA",tmdb:8.0,poster:"/lVCsNPqG9Ui8AWDNAQ5vRuU8MYe.jpg"},
+  // Comedy
+  {id:11237,title:"The Rules of the Game",year:"1939",director:"Jean Renoir",genre:"Comedy",country:"France",tmdb:8.0,poster:"/gU0BHaC2DPjVdgexRVWfGxIAKVk.jpg"},
+  {id:10696,title:"Mon Oncle",year:"1958",director:"Jacques Tati",genre:"Comedy",country:"France",tmdb:7.9,poster:"/9WXJvOiJ5FEwb8MOVe8lH6HJkWN.jpg"},
+  {id:39013,title:"Playtime",year:"1967",director:"Jacques Tati",genre:"Comedy",country:"France",tmdb:8.0,poster:"/kxATPBKUmJqFGfWOKMbeNoqBkDu.jpg"},
+  {id:862,title:"Toy Story",year:"1995",director:"John Lasseter",genre:"Comedy",country:"USA",tmdb:8.3,poster:"/uXDfjJbdP4ijW5hWSBrPl9KcertX.jpg"},
+  {id:11324,title:"Shoeshine",year:"1946",director:"Vittorio De Sica",genre:"Drama",country:"Italy",tmdb:7.8,poster:"/2EGnUBfO5R8vHjhJPHFkFZ3mbXN.jpg"},
+  // Sci-Fi
+  {id:72976,title:"Solaris",year:"1972",director:"Andrei Tarkovsky",genre:"Sci-Fi",country:"Russia",tmdb:8.1,poster:"/jkJzJpJiMEfTVvFibMnBNOCbBgA.jpg"},
+  {id:76341,title:"Mad Max: Fury Road",year:"2015",director:"George Miller",genre:"Sci-Fi",country:"Australia",tmdb:7.8,poster:"/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg"},
+  {id:601,title:"Brazil",year:"1985",director:"Terry Gilliam",genre:"Sci-Fi",country:"UK",tmdb:7.9,poster:"/xfqh0eaahj7ZPVxgHAG0bMQN8Q.jpg"},
+  {id:1891,title:"Stalker",year:"1979",director:"Andrei Tarkovsky",genre:"Sci-Fi",country:"Russia",tmdb:8.1,poster:"/ygO9lowFMXWymATCrhoQXd6bFIF.jpg"},
+  {id:68718,title:"Django Unchained",year:"2012",director:"Quentin Tarantino",genre:"Western",country:"USA",tmdb:8.4,poster:"/7oWY8VDWW7thTzWh3OKYRkWcpXi.jpg"},
+  // World Cinema
+  {id:637,title:"Life Is Beautiful",year:"1997",director:"Roberto Benigni",genre:"Drama",country:"Italy",tmdb:8.5,poster:"/f7DImXDebOs148U4uPjI61iDvaK.jpg"},
+  {id:25777,title:"Bicycle Thieves",year:"1948",director:"Vittorio De Sica",genre:"Drama",country:"Italy",tmdb:8.3,poster:"/4IELjOl47MZhCg5vWc4KVn7UQkk.jpg"},
+  {id:11216,title:"Rome, Open City",year:"1945",director:"Roberto Rossellini",genre:"Drama",country:"Italy",tmdb:7.9,poster:"/e1BdLEdoWXJBlA8AiAXyTXVbdCd.jpg"},
+  {id:489,title:"Ran",year:"1985",director:"Akira Kurosawa",genre:"Drama",country:"Japan",tmdb:8.2,poster:"/gdS2Q2CSKyMkAOlRwxLCaHQl5fD.jpg"},
+  {id:11622,title:"Ugetsu",year:"1953",director:"Kenji Mizoguchi",genre:"Drama",country:"Japan",tmdb:8.1,poster:"/fvnPgJpSLVFBvUzElDrU3A6nFf0.jpg"},
+  {id:40096,title:"The Wind Will Carry Us",year:"1999",director:"Abbas Kiarostami",genre:"Drama",country:"Iran",tmdb:7.8,poster:"/cJDFE3uVWRTpPZaT6eKGIYJxzuS.jpg"},
+  {id:53256,title:"A Separation",year:"2011",director:"Asghar Farhadi",genre:"Drama",country:"Iran",tmdb:8.3,poster:"/fFUFqWfHiAZAIaFpMn2XVzDGGcl.jpg"},
+  {id:18148,title:"Tokyo Story",year:"1953",director:"Yasujirō Ozu",genre:"Drama",country:"Japan",tmdb:8.2,poster:"/lO6H6HXvRXsmh6uHkPE4bh0IIGU.jpg"},
+  {id:14160,title:"Up",year:"2009",director:"Pete Docter",genre:"Drama",country:"USA",tmdb:8.3,poster:"/vpjGMWXNSKEJvM04dBSKkNVsGZ4.jpg"},
+  {id:19404,title:"Dilwale Dulhania Le Jayenge",year:"1995",director:"Aditya Chopra",genre:"Drama",country:"India",tmdb:8.6,poster:"/2CAL2433ZeIihfX1Hb2139CX0pW.jpg"},
+  {id:120,title:"The Lord of the Rings",year:"2001",director:"Peter Jackson",genre:"Adventure",country:"New Zealand",tmdb:8.9,poster:"/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg"},
+  // American Classics
+  {id:2662,title:"Sullivan's Travels",year:"1941",director:"Preston Sturges",genre:"Comedy",country:"USA",tmdb:8.0,poster:"/bMOFzCGAyJK2xAiFESwTlVlSmOe.jpg"},
+  {id:289,title:"Casablanca",year:"1942",director:"Michael Curtiz",genre:"Drama",country:"USA",tmdb:8.5,poster:"/5K7cOHoay2mZusSLezBOY0Qxh8a.jpg"},
+  {id:872,title:"Singin' in the Rain",year:"1952",director:"Gene Kelly",genre:"Comedy",country:"USA",tmdb:8.1,poster:"/w3PTd2Kj4jT0VHXmOAOmFgXibuJ.jpg"},
+  {id:4935,title:"Sunset Boulevard",year:"1950",director:"Billy Wilder",genre:"Drama",country:"USA",tmdb:8.4,poster:"/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg"},
+  {id:4974,title:"All About Eve",year:"1950",director:"Joseph L. Mankiewicz",genre:"Drama",country:"USA",tmdb:8.2,poster:"/k5OOyqNMHXiS10F8YcE0GnFaFaR.jpg"},
+  {id:857,title:"Saving Private Ryan",year:"1998",director:"Steven Spielberg",genre:"War",country:"USA",tmdb:8.6,poster:"/uqx37cS8cpHg8U35f9U5IBlrCV3.jpg"},
+  {id:240,title:"The Godfather Part II",year:"1974",director:"Francis Ford Coppola",genre:"Crime",country:"USA",tmdb:9.0,poster:"/hek3koDUyRQk7FIhPXsa6mT2Zc3.jpg"},
+  {id:769,title:"GoodFellas",year:"1990",director:"Martin Scorsese",genre:"Crime",country:"USA",tmdb:8.7,poster:"/aKuFiU82s5ISJpGZp7YkIr3kCUd.jpg"},
+  {id:78,title:"Blade Runner",year:"1982",director:"Ridley Scott",genre:"Sci-Fi",country:"USA",tmdb:7.9,poster:"/63N9uy8nd9j7Eog2axPQ8lbr3Wj.jpg"},
+  {id:578,title:"Chinatown",year:"1974",director:"Roman Polanski",genre:"Crime",country:"USA",tmdb:8.1,poster:"/aowPvxfXhHYBb7LGLFVDhU8bvLs.jpg"},
+  {id:424,title:"Schindler's List",year:"1993",director:"Steven Spielberg",genre:"Drama",country:"USA",tmdb:9.0,poster:"/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg"},
+  // Recent Arthouse
+  {id:194662,title:"Boyhood",year:"2014",director:"Richard Linklater",genre:"Drama",country:"USA",tmdb:7.9,poster:"/pCF7DFGBOhUvGMqMTfDWpWHGCuB.jpg"},
+  {id:376867,title:"Moonlight",year:"2016",director:"Barry Jenkins",genre:"Drama",country:"USA",tmdb:7.4,poster:"/4911T5FbJ9eAlnVSNk3hAEAKSQP.jpg"},
+  {id:397,title:"Portrait of a Lady on Fire",year:"2019",director:"Céline Sciamma",genre:"Drama",country:"France",tmdb:8.1,poster:"/mBaQAhR8MNcSfVRUCmDJlHLAh0H.jpg"},
+  {id:496243,title:"Parasite",year:"2019",director:"Bong Joon-ho",genre:"Drama",country:"South Korea",tmdb:8.5,poster:"/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"},
+  {id:399055,title:"The Favourite",year:"2018",director:"Yorgos Lanthimos",genre:"Drama",country:"UK",tmdb:7.3,poster:"/7yyFEsuaLGMKbB8bE8VKHkYbKRB.jpg"},
+  {id:313369,title:"La La Land",year:"2016",director:"Damien Chazelle",genre:"Drama",country:"USA",tmdb:7.9,poster:"/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg"},
+  {id:318846,title:"The Big Short",year:"2015",director:"Adam McKay",genre:"Drama",country:"USA",tmdb:7.8,poster:"/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg"},
+  {id:508442,title:"Soul",year:"2020",director:"Pete Docter",genre:"Drama",country:"USA",tmdb:8.1,poster:"/hm58Jw4Lw8OIeECIq5qyPYhAeRJ.jpg"},
+  {id:581734,title:"Nomadland",year:"2020",director:"Chloé Zhao",genre:"Drama",country:"USA",tmdb:7.3,poster:"/66A9MqSRtSobZ17nXGpbTYvrJl8.jpg"},
+  {id:646380,title:"The Power of the Dog",year:"2021",director:"Jane Campion",genre:"Drama",country:"New Zealand",tmdb:7.0,poster:"/uAm3cHLFNpCQJs4jRkJAelqj7oU.jpg"},
+];
+
+const DECADES = ["1920s","1930s","1940s","1950s","1960s","1970s","1980s","1990s","2000s","2010s","2020s"];
+const GENRES  = ["Drama","Comedy","Horror","Sci-Fi","Crime","Western","War","Adventure"];
+const COUNTRIES = ["France","Italy","Japan","USA","Germany","Sweden","Russia","UK","South Korea","Iran","Belgium"];
+const DIRECTORS = [...new Set(CRITERION.map(m=>m.director))].sort();
+
+/* ── RESEARCH ── */
+function buildResearch() {
+  const rs = state.research;
+  const mode = rs.mode || 'home';
+  let html = `<div class="research-wrap">`;
+
+  if(mode === 'home') {
+    html += `<div class="research-home-title">Criterion Collection</div>
+    <div class="browse-cats">
+      <div class="browse-cat" data-browse-cat="genre">
+        <div class="browse-cat-icon">🎭</div>
+        <div class="browse-cat-label">By Genre</div>
+        <div class="browse-cat-sub">Drama, Horror, Comedy...</div>
+      </div>
+      <div class="browse-cat" data-browse-cat="decade">
+        <div class="browse-cat-icon">📅</div>
+        <div class="browse-cat-label">By Decade</div>
+        <div class="browse-cat-sub">1950s through 2020s</div>
+      </div>
+      <div class="browse-cat" data-browse-cat="director">
+        <div class="browse-cat-icon">🎬</div>
+        <div class="browse-cat-label">By Director</div>
+        <div class="browse-cat-sub">Kurosawa, Tati, Tarkovsky...</div>
+      </div>
+      <div class="browse-cat" data-browse-cat="country">
+        <div class="browse-cat-icon">🌍</div>
+        <div class="browse-cat-label">By Country</div>
+        <div class="browse-cat-sub">French New Wave, Japanese...</div>
+      </div>
+    </div>
+    <div class="browse-search-row">
+      <input class="research-input" id="research-input" placeholder="Search title or director..."/>
+      <button class="research-search-btn" id="research-search-btn">Search</button>
+    </div>`;
+  } else if(mode === 'browse') {
+    const cat = rs.category;
+    const filterOptions = cat==='genre'?GENRES:cat==='decade'?DECADES:cat==='country'?COUNTRIES:DIRECTORS;
+    const activeFilter = rs.filter;
+    const catLabels = {genre:'Genre',decade:'Decade',director:'Director',country:'Country'};
+    html += `<div class="research-back" id="research-back-home">← Back</div>
+    <div class="research-home-title">Browse by ${catLabels[cat]||cat}</div>
+    <div class="browse-filter-row">
+      ${filterOptions.map(f=>`<span class="browse-filter${activeFilter===f?' active':''}" data-filter="${f}">${f}</span>`).join('')}
+    </div>`;
+    const filtered = activeFilter ? CRITERION.filter(m => {
+      if(cat==='genre')return m.genre===activeFilter;
+      if(cat==='decade')return m.year&&m.year.slice(0,3)===(activeFilter.slice(0,3));
+      if(cat==='director')return m.director===activeFilter;
+      if(cat==='country')return m.country===activeFilter;
+      return true;
+    }) : CRITERION;
+    if(filtered.length) {
+      html += `<div class="research-grid">`;
+      filtered.forEach((m,i)=>{
+        const alreadyQueued=state.watchlist.some(w=>w.title.toLowerCase()===m.title.toLowerCase());
+        html+=`<div class="research-card" data-browse-idx="${i}" data-browse-cat="${cat}" data-browse-filter="${activeFilter||''}">
+          ${m.poster?`<img src="https://image.tmdb.org/t/p/w300${m.poster}" alt="${esc(m.title)}" loading="lazy"/>`:`<div class="research-card-ph">🎬</div>`}
+          ${alreadyQueued?`<div class="research-card-queued">✓ Queued</div>`:''}
+          <div class="research-card-info">
+            <div class="research-card-title">${esc(m.title)}</div>
+            <div class="research-card-year">${m.year}</div>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    } else {
+      html += `<div class="research-empty">Select a filter above to browse films.</div>`;
+    }
+  } else if(mode === 'detail') {
+    const m = rs.selected;
+    if(m) {
+      const alreadyQueued=state.watchlist.some(w=>w.title.toLowerCase()===m.title.toLowerCase());
+      html += `<div class="research-back" id="research-back-browse">← Back</div>
+      <div class="research-detail">
+        <div class="research-detail-top">
+          <div class="research-detail-poster">
+            ${m.poster?`<img src="https://image.tmdb.org/t/p/w300${m.poster}" alt="${esc(m.title)}" loading="lazy"/>`:`<div class="research-detail-poster-ph">🎬</div>`}
+          </div>
+          <div class="research-detail-meta">
+            <div class="research-detail-title">${esc(m.title)}</div>
+            <div class="research-detail-sub">${[m.year,m.genre,m.director?'Dir. '+m.director:'',m.runtime?m.runtime+'m':''].filter(Boolean).join(' · ')}</div>
+            ${m.country?`<div style="font-size:9px;color:#4a3820;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;margin-top:3px">${m.country}</div>`:''}
+            ${m.tmdb?`<div style="margin-top:6px"><span class="badge">TMDB ${m.tmdb}</span></div>`:''}
+          </div>
+        </div>
+        ${m.tagline?`<div class="research-detail-tagline">"${esc(m.tagline)}"</div>`:''}
+        ${rs.overview?`<div class="research-detail-overview">${esc(rs.overview)}</div>`:'<div class="research-loading">Loading details...</div>'}
+        <button class="research-queue-btn${alreadyQueued?' queued':''}" id="research-queue-btn" ${alreadyQueued?'disabled':''}>
+          ${alreadyQueued?'✓ Already in Queue':'+ Add to To Watch'}
+        </button>
+      </div>`;
+    }
+  }
+
+  if(mode==='home'||mode==='browse') {
+    html += `<div style="margin-top:1rem;text-align:center"><span style="font-size:9px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;color:#3a2f00;cursor:pointer" id="research-close">← Back to To Watch</span></div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function bindResearch() {
+  document.getElementById('research-close')?.addEventListener('click',()=>{state.showForm=false;state.research={active:false,results:[],query:'',loading:false,selected:null,mode:'home',category:null,filter:null};render();});
+  document.getElementById('research-back-home')?.addEventListener('click',()=>{state.research.mode='home';state.research.filter=null;render();});
+  document.getElementById('research-back-browse')?.addEventListener('click',()=>{state.research.mode='browse';state.research.selected=null;state.research.overview=null;render();});
+  // Category tiles
+  document.querySelectorAll('[data-browse-cat]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.dataset.browseCat){state.research.mode='browse';state.research.category=el.dataset.browseCat;state.research.filter=null;render();}
+    });
+  });
+  // Filters
+  document.querySelectorAll('[data-filter]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      state.research.filter=el.dataset.filter===state.research.filter?null:el.dataset.filter;render();
+    });
+  });
+  // Film cards
+  document.querySelectorAll('[data-browse-idx]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const cat=el.dataset.browseCat;const filter=el.dataset.browseFilter;const idx=parseInt(el.dataset.browseIdx);
+      const filtered=filter?CRITERION.filter(m=>{
+        if(cat==='genre')return m.genre===filter;
+        if(cat==='decade')return m.year&&m.year.slice(0,3)===filter.slice(0,3);
+        if(cat==='director')return m.director===filter;
+        if(cat==='country')return m.country===filter;
+        return true;
+      }):CRITERION;
+      const m=filtered[idx];
+      if(m){state.research.selected=m;state.research.mode='detail';state.research.overview=null;render();fetchResearchDetail(m.id);}
+    });
+  });
+  // Search
+  const input=document.getElementById('research-input');
+  const searchFn=()=>{
+    const q=(input?.value||'').trim();if(!q)return;
+    const results=CRITERION.filter(m=>m.title.toLowerCase().includes(q.toLowerCase())||m.director.toLowerCase().includes(q.toLowerCase()));
+    state.research.results=results;state.research.mode='search';state.research.query=q;render();
+  };
+  document.getElementById('research-search-btn')?.addEventListener('click',searchFn);
+  input?.addEventListener('keydown',e=>{if(e.key==='Enter')searchFn();});
+  // Queue btn
+  document.getElementById('research-queue-btn')?.addEventListener('click',()=>{
+    const m=state.research.selected;if(!m)return;queueResearchFilm(m);
+  });
+}
+
+async function fetchResearchDetail(tmdbId) {
+  try {
+    const r=await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_KEY}&language=en-US&append_to_response=credits`);
+    const d=await r.json();
+    if(state.research.selected&&state.research.selected.id===tmdbId){
+      state.research.overview=d.overview||'';
+      if(!state.research.selected.tagline&&d.tagline)state.research.selected.tagline=d.tagline;
+      if(!state.research.selected.runtime&&d.runtime)state.research.selected.runtime=d.runtime;
+      if(d.credits&&d.credits.cast)state.research.selected.cast=d.credits.cast.slice(0,4).map(a=>a.name).join(', ');
+      render();
+    }
+  }catch(e){state.research.overview='';render();}
+}
+
+async function queueResearchFilm(m) {
+  const id='w'+Date.now();
+  const maxOrder=state.watchlist.reduce((max,w)=>Math.max(max,w.sortOrder||0),0);
+  await setDoc(doc(db,'watchlist',id),{
+    id,title:m.title,year:m.year||'',picker:state.currentUser,priority:'med',notes:'',
+    poster:m.poster?TMDB_IMG+m.poster:null,
+    genre:m.genre||'',tmdb:m.tmdb?String(m.tmdb):null,
+    director:m.director||'',runtime:m.runtime||null,tagline:m.tagline||'',
+    overview:state.research.overview||'',cast:m.cast||'',
+    votes:{},interestVotes:{},sortOrder:maxOrder+10
+  });
+  setTimeout(()=>{
+    state.showForm=false;state.research={active:false,results:[],query:'',loading:false,selected:null,mode:'home',category:null,filter:null};
+    state.tab='watchlist';
+    document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===2));
+    render();
+  },600);
+}
+
+/* ── EXPAND DELEGATION ── */
+document.addEventListener('click',function(e){
+  const btn=e.target.closest('.expand-btn');if(!btn)return;
+  e.preventDefault();e.stopPropagation();
+  const id=btn.dataset.expandId;
+  const panel=document.getElementById('expand-'+id);const arrow=document.getElementById('arrow-'+id);
+  if(!panel)return;
+  const isOpen=panel.classList.contains('open');
+  panel.classList.toggle('open',!isOpen);
+  if(arrow)arrow.classList.toggle('open',!isOpen);
+});
+
+/* ── BOOT ── */
+const saved=localStorage.getItem('cmc_user');
+if(saved&&PROFILES[saved]){
+  state.currentUser=saved;
+  document.getElementById('main-app').style.display='block';
+  document.getElementById('bottom-nav').style.display='flex';
+  updateAvatar(saved);
+  initFirestore();
+}else{
+  showIdentityScreen();
+}
+</script>
+</body>
+</html>
