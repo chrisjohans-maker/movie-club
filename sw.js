@@ -1,8 +1,5 @@
-const CACHE = 'cmc-v1';
-const ASSETS = [
-  '/movie-club/',
-  '/movie-club/index.html',
-  '/movie-club/manifest.json',
+const CACHE = 'cmc-static-v1';
+const STATIC = [
   '/movie-club/icon-192.png',
   '/movie-club/icon-512.png',
   '/movie-club/apple-touch-icon.png',
@@ -10,7 +7,7 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting())
   );
 });
 
@@ -23,12 +20,27 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Network first for Firebase and TMDB, cache first for app shell
   const url = new URL(e.request.url);
-  if (url.hostname.includes('firebase') || url.hostname.includes('themoviedb') || url.hostname.includes('googleapis')) {
+
+  // Always fetch HTML fresh — never cache index.html
+  if (url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
+
+  // Always fetch Firebase, TMDB, and Google APIs fresh
+  if (
+    url.hostname.includes('firebase') ||
+    url.hostname.includes('firestore') ||
+    url.hostname.includes('themoviedb') ||
+    url.hostname.includes('googleapis') ||
+    url.hostname.includes('youtube')
+  ) {
+    e.respondWith(fetch(e.request).catch(() => new Response('', {status: 503})));
+    return;
+  }
+
+  // Cache first for static assets (icons, manifest)
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
       const clone = res.clone();
@@ -37,3 +49,4 @@ self.addEventListener('fetch', e => {
     }))
   );
 });
+
