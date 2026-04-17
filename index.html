@@ -393,7 +393,7 @@ body{font-family:'Special Elite',serif;color:#F9F0DC}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, writeBatch, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const APP_VERSION = '2.40.73';
+const APP_VERSION = '2.40.74';
 // ── VERSION CHECK ──
 async function checkForUpdate() {
   if(sessionStorage.getItem('cmc_checked')===APP_VERSION) return;
@@ -1785,25 +1785,14 @@ function showDetailCard(m, d, seen) {
       const footer=card.querySelector('#d-detail-footer');
       if(!footer)return;
       footer.innerHTML=`
-        <div style="padding:.4rem 0 .3rem;font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:3px;color:#c89a30;text-align:center">Added — How interested are you?</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-          ${INTEREST_LEVELS.map(l=>`<div data-ivp-val="${l.val}" style="border:1px solid ${l.bc};background:${l.bg};padding:8px 4px;text-align:center;cursor:pointer">
-            <div style="font-size:13px;color:${l.tc}">${l.icon}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1px;color:${l.tc};margin-top:2px">${l.name}</div>
-          </div>`).join('')}
-        </div>`;
-      footer.querySelectorAll('[data-ivp-val]').forEach(ivpEl=>{
-        ivpEl.addEventListener('click',async()=>{
-          await castInterestVote(filmId, parseInt(ivpEl.dataset.ivpVal));
-          footer.innerHTML='<div style="font-size:13px;letter-spacing:3px;color:#F5C842;text-align:center;padding:.75rem">✓ Vote Cast</div>';
-          setTimeout(()=>{
-            card.remove();
-            S.research.selected=null; S.research.detail=null;
-            S.tab='vote';
-            document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===2));
-            render();
-          },800);
-        });
+        <div style="padding:.4rem 0 .3rem;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:#F5C842;text-align:center">How badly do you want to see this?</div>
+        ${buildVotePromptHTML(filmId)}`;
+      bindVotePrompt(filmId, footer, ()=>{
+        card.remove();
+        S.research.selected=null; S.research.detail=null;
+        S.tab='vote';
+        document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===2));
+        render();
       });
     });
   });
@@ -2571,7 +2560,7 @@ function showInlineVotePromptEl(filmId, filmTitle, el, onDone) {
   ov.id='vote-prompt-ov';
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:center;justify-content:center;padding:1.5rem;max-width:480px;margin:0 auto';
   ov.innerHTML=`<div style="background:#0A0500;border:1px solid #c89a30;padding:1.2rem;width:100%">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:3px;color:#c89a30;margin-bottom:.75rem;text-align:center">Added — Cast Your Vote</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:#F5C842;margin-bottom:.75rem;text-align:center">How badly do you want to see this?</div>
     ${buildVotePromptHTML(filmId)}
   </div>`;
   document.body.appendChild(ov);
