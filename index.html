@@ -396,7 +396,7 @@ body{font-family:'Special Elite',serif;color:#F9F0DC}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, writeBatch, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const APP_VERSION = '2.42.0';
+const APP_VERSION = '2.43.0';
 // ── VERSION CHECK ──
 function versionGt(a,b) {
   const pa=String(a).split('.').map(Number), pb=String(b).split('.').map(Number);
@@ -1636,19 +1636,33 @@ async function submitSchedule() {
 
 // ── DISCOVER ──
 const RESEARCH_DIRS = [
-  {name:'Martin Scorsese',id:1032},{name:'Akira Kurosawa',id:5765},{name:'Stanley Kubrick',id:240},
-  {name:'Federico Fellini',id:4415},{name:'Ingmar Bergman',id:6648},{name:'Andrei Tarkovsky',id:9350},
-  {name:'Werner Herzog',id:4164},{name:'Jean-Luc Godard',id:5002},{name:'François Truffaut',id:3499},
-  {name:'Jacques Tati',id:10996},{name:'Quentin Tarantino',id:138},{name:'David Fincher',id:7467},
-  {name:'Bong Joon-ho',id:21684},{name:'Paul Thomas Anderson',id:4175},{name:'Terrence Malick',id:3034},
-  {name:'Wong Kar-wai',id:12453},{name:'Céline Sciamma',id:1027521},{name:'Agnès Varda',id:1706},
-  {name:'John Cassavetes',id:7232},{name:'Robert Altman',id:1776},{name:'Sidney Lumet',id:4011},
-  {name:'Michael Mann',id:1041},{name:'David Lynch',id:5765026},{name:'Chantal Akerman',id:32764},
-  {name:'Claire Denis',id:5294},{name:'Abbas Kiarostami',id:11477},{name:'Pedro Almodóvar',id:11453},
-  {name:'Rainer Werner Fassbinder',id:16214},{name:'Mike Leigh',id:12453076},{name:'Yorgos Lanthimos',id:55749},
-  {name:'Ari Aster',id:1271941},{name:'Robert Eggers',id:1032796},{name:'Kelly Reichardt',id:64483},
-  {name:'Mia Hansen-Løve',id:559767},
+  // ── Original roster (IDs corrected — 24 of these 35 pointed at the wrong TMDB person entirely) ──
+  {name:'Martin Scorsese',id:1032},{name:'Akira Kurosawa',id:5026},{name:'Stanley Kubrick',id:240},
+  {name:'Federico Fellini',id:4415},{name:'Ingmar Bergman',id:6648},{name:'Andrei Tarkovsky',id:8452},
+  {name:'Werner Herzog',id:6818},{name:'Jean-Luc Godard',id:3776},{name:'François Truffaut',id:1650},
+  {name:'Jacques Tati',id:5763},{name:'Quentin Tarantino',id:138},{name:'David Fincher',id:7467},
+  {name:'Bong Joon-ho',id:21684},{name:'Paul Thomas Anderson',id:4762},{name:'Terrence Malick',id:30715},
+  {name:'Wong Kar-wai',id:12453},{name:'Céline Sciamma',id:68813},{name:'Agnès Varda',id:6817},
+  {name:'John Cassavetes',id:11147},{name:'Robert Altman',id:9789},{name:'Sidney Lumet',id:39996},
+  {name:'Michael Mann',id:638},{name:'David Lynch',id:5602},{name:'Chantal Akerman',id:130030},
+  {name:'Claire Denis',id:9888},{name:'Abbas Kiarostami',id:119294},{name:'Pedro Almodóvar',id:309},
+  {name:'Rainer Werner Fassbinder',id:2725},{name:'Mike Leigh',id:65452},{name:'Yorgos Lanthimos',id:122423},
+  {name:'Ari Aster',id:1145520},{name:'Robert Eggers',id:138781},{name:'Kelly Reichardt',id:56383},
+  {name:'Mia Hansen-Løve',id:222686},
   {name:'Christopher Nolan',id:525},
+  // ── Added for a bigger, more robust pool — same prestige/arthouse curation, verified TMDB IDs ──
+  {name:'Wes Anderson',id:5655},{name:'Alfred Hitchcock',id:2636},{name:'Billy Wilder',id:3146},
+  {name:'Orson Welles',id:40},{name:'Yasujirō Ozu',id:95501},{name:'Wim Wenders',id:2303},
+  {name:'Hirokazu Kore-eda',id:25645},{name:'Park Chan-wook',id:10099},{name:'Lee Chang-dong',id:96657},
+  {name:'Hou Hsiao-hsien',id:64992},{name:'Jia Zhangke',id:24011},{name:'Michael Haneke',id:6011},
+  {name:'Lars von Trier',id:42},{name:'Aki Kaurismäki',id:16767},{name:'Luis Buñuel',id:793},
+  {name:'Roberto Rossellini',id:4410},{name:'Krzysztof Kieślowski',id:1126},{name:'Béla Tarr',id:85637},
+  {name:'Nuri Bilge Ceylan',id:56214},{name:'Sofia Coppola',id:1769},{name:'Spike Lee',id:5281},
+  {name:'Barry Jenkins',id:92784},{name:'Greta Gerwig',id:45400},{name:'Kathryn Bigelow',id:14392},
+  {name:'Denis Villeneuve',id:137427},{name:'Alfonso Cuarón',id:11218},{name:'Guillermo del Toro',id:10828},
+  {name:'Alejandro G. Iñárritu',id:223},{name:'Jordan Peele',id:291263},{name:'Ryusuke Hamaguchi',id:1487492},
+  {name:'Jane Campion',id:10757},{name:'Andrea Arnold',id:71082},{name:'Lynne Ramsay',id:83287},
+  {name:'David Cronenberg',id:224},{name:'Darren Aronofsky',id:6431},{name:'Joel Coen',id:1223},
 ];
 window._rCache = window._rCache || {};
 
@@ -1719,7 +1733,7 @@ function buildDiscover() {
     </div>`;
     if(tab==='director'){
       return hdr+tabGrid+`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.75rem 1.1rem">
-        ${RESEARCH_DIRS.map(d=>`<div class="dir-row" data-dir-id="${d.id}" data-dir-name="${esc(d.name)}"><div class="dir-name">${esc(d.name)}</div><div class="dir-arrow">→</div></div>`).join('')}
+        ${[...RESEARCH_DIRS].sort((a,b)=>a.name.localeCompare(b.name)).map(d=>`<div class="dir-row" data-dir-id="${d.id}" data-dir-name="${esc(d.name)}"><div class="dir-name">${esc(d.name)}</div><div class="dir-arrow">→</div></div>`).join('')}
       </div>`;
     }
     return hdr+tabGrid+`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.75rem 1.1rem">
