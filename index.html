@@ -634,30 +634,55 @@ async function initFirestore() {
     await batch.commit();
   }
   onSnapshot(collection(db,'watchlist'),snap=>{
+    hideConnBanner();
     S.watchlist=snap.docs.map(d=>({...d.data(),id:d.id}));
     if(S.loaded){render();fetchMissing(S.watchlist,'watchlist');}
-  });
+  },err=>showConnBanner('Lost connection to watchlist',err));
   onSnapshot(collection(db,'watched'),snap=>{
+    hideConnBanner();
     S.watched=snap.docs.map(d=>({...d.data(),id:d.id}));
     S.loaded=true; render(); fetchMissing(S.watched,'watched');
-  });
+  },err=>showConnBanner('Lost connection to club history',err));
   onSnapshot(doc(db,'config','screening'),snap=>{
+    hideConnBanner();
     S.screening=snap.exists()?snap.data():null;
     if(S.loaded){checkExpiry();render();}
-  });
+  },err=>showConnBanner('Lost connection to screening info',err));
   onSnapshot(doc(db,'config','membership'),snap=>{
+    hideConnBanner();
     S.membership=snap.exists()?snap.data():{votes:{}};
     if(S.loaded)render();
-  });
+  },err=>showConnBanner('Lost connection to membership',err));
   onSnapshot(doc(db,'config','dateRequests'),snap=>{
+    hideConnBanner();
     S.dateRequests=snap.exists()?snap.data():{requests:{}};
     if(S.loaded)render();
-  });
+  },err=>showConnBanner('Lost connection to date requests',err));
   onSnapshot(doc(db,'config','screeningSeen'),snap=>{
+    hideConnBanner();
     S.screeningSeen=snap.exists()?snap.data():{};
     if(S.loaded)render();
-  });
+  },err=>showConnBanner('Lost connection to screening status',err));
 }
+
+// ── CONNECTION ERROR BANNER ──
+function showConnBanner(msg,err) {
+  if(err)console.error('[Firestore]',msg,err);
+  let b=document.getElementById('conn-banner');
+  if(!b){
+    b=document.createElement('div');
+    b.id='conn-banner';
+    b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:500;background:#2a0a00;border-bottom:1px solid #5a1a00;color:#F5C842;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:2px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:480px;margin:0 auto';
+    document.body.appendChild(b);
+  }
+  b.innerHTML=`<span>⚠ ${esc(msg)}</span><span id="conn-retry-btn" style="cursor:pointer;text-decoration:underline;flex-shrink:0">Retry</span>`;
+  document.getElementById('conn-retry-btn').addEventListener('click',()=>location.reload());
+}
+function hideConnBanner() {
+  document.getElementById('conn-banner')?.remove();
+}
+window.addEventListener('offline',()=>showConnBanner('You’re offline'));
+window.addEventListener('online',()=>hideConnBanner());
 
 async function fetchMissing(movies,coll) {
   // First: patch any watched docs whose poster matches a seed URL but is stored as null
