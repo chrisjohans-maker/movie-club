@@ -484,7 +484,7 @@ let S = {
   showForm:false,
   voteMode:false, voteIdx:0, voteTrailerKey:null, voteTrailerOpen:false, voteTrailerCandidates:[], voteTrailerCandidateIdx:0,
   reviewMode:false, reviewIdx:0,
-  research:{mode:'home',tab:'clubpicks',films:[],loading:false,selected:null,detail:null,selectedDir:null,detailTrailer:null,page:1,totalPages:1},
+  research:{mode:'home',tab:'clubpicks',films:[],loading:false,error:false,selected:null,detail:null,selectedDir:null,detailTrailer:null,page:1,totalPages:1},
   countdownInterval:null,
 };
 
@@ -1843,8 +1843,11 @@ function buildDCard(m, seen) {
 }
 
 function buildDiscoverGrid(films,seen) {
-  if(!films.length)return `<div class="empty">No films to display.</div>`;
   const rs=S.research;
+  if(!films.length){
+    if(rs.error)return `<div class="empty">Couldn't reach the movie database.<div id="discover-retry-btn" style="margin-top:.6rem;font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:#F5C842;cursor:pointer;text-decoration:underline">Retry</div></div>`;
+    return `<div class="empty">No films to display.</div>`;
+  }
   const canLoadMore=rs.tab!=='director'&&(rs.page||1)<Math.min(rs.totalPages||1,rs.tab==='clubpicks'?3:8);
   return `<div class="dgrid">${films.map(m=>buildDCard(m,seen)).join('')}</div>
   ${canLoadMore?`<div id="load-more-btn" style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:#4a3820;text-align:center;padding:1rem;cursor:pointer;border-top:1px solid #1a1000">Load More ↓</div>`:''}`;
@@ -1884,6 +1887,16 @@ function bindDiscover() {
     });
   }
 
+  ov.querySelector('#discover-retry-btn')?.addEventListener('click',()=>{
+    S.research.error=false; S.research.loading=true; render();
+    if(S.research.mode==='director'&&S.research.selectedDir){
+      delete window._rCache['dir_'+S.research.selectedDir.id];
+      loadDirectorFilms(S.research.selectedDir.id,S.research.selectedDir.name);
+      return;
+    }
+    loadDiscoverTab(S.research.tab||'clubpicks',1);
+  });
+
   ov.querySelector('#load-more-btn')?.addEventListener('click',function(){
     const btn=this; btn.textContent='Loading...'; btn.style.pointerEvents='none';
     const nextPage=(S.research.page||1)+1;
@@ -1891,7 +1904,7 @@ function bindDiscover() {
   });
   ov.querySelectorAll('[data-dtab]').forEach(el=>{
     el.addEventListener('click',()=>{
-      const tab=el.dataset.dtab; S.research.tab=tab; S.research.films=[]; S.research.loading=false; S.research.page=1; S.research.totalPages=1;
+      const tab=el.dataset.dtab; S.research.tab=tab; S.research.films=[]; S.research.loading=false; S.research.error=false; S.research.page=1; S.research.totalPages=1;
       if(tab==='director'){S.tab='discover';render();return;}
       const c=window._rCache[tab];
       if(c&&c.length){S.research.films=c;S.research.loading=false;}else{S.research.loading=true;loadDiscoverTab(tab);}
@@ -1901,7 +1914,7 @@ function bindDiscover() {
   ov.querySelectorAll('[data-dir-id]').forEach(el=>{
     el.addEventListener('click',()=>{
       const id=parseInt(el.dataset.dirId);const name=el.dataset.dirName;
-      S.research.mode='director';S.research.selectedDir={id,name};S.research.films=[];S.research.loading=true;
+      S.research.mode='director';S.research.selectedDir={id,name};S.research.films=[];S.research.loading=true;S.research.error=false;
       S.tab='discover';render();
       loadDirectorFilms(id,name);
     });
@@ -1930,6 +1943,8 @@ function bindDiscover() {
   }
 }
 
+const isTmdbError=d=>!!(d&&d.success===false);
+
 async function loadDiscoverTab(tab,page=1) {
   const cacheKey=tab+'_p'+page;
   const base=`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB}&language=en-US`;
@@ -1938,25 +1953,29 @@ async function loadDiscoverTab(tab,page=1) {
     // ── Helper: fetch films for a list of director names ──
     const fetchDirFilms=async(dirNames,existingIds,minVotes,perDir)=>{
       const seen=new Set([...S.watchlist,...S.watched].map(m=>m.title.toLowerCase()));
-      const all=[];
+      const all=[]; let errCount=0;
       await Promise.all(dirNames.map(async dirName=>{
         try{
           const sp=await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB}&query=${encodeURIComponent(dirName)}&language=en-US`);
           const sd=await sp.json();
+          if(isTmdbError(sd)){errCount++;return;}
           const person=(sd.results||[]).find(p=>p.known_for_department==='Directing')||(sd.results||[])[0];
           if(!person)return;
           const rm=await fetch(`https://api.themoviedb.org/3/person/${person.id}/movie_credits?api_key=${TMDB}`);
           const dm=await rm.json();
+          if(isTmdbError(dm)){errCount++;return;}
           const films=(dm.crew||[])
             .filter(m=>m.job==='Director'&&m.poster_path&&!seen.has((m.title||'').toLowerCase())&&(m.vote_count||0)>=minVotes&&!existingIds.has(m.id))
             .sort((a,b)=>(b.vote_count||0)-(a.vote_count||0))
             .slice(0,perDir);
           all.push(...films);
-        }catch(e){}
+        }catch(e){errCount++;}
       }));
       const dedup=new Set();
-      return all.filter(m=>{if(dedup.has(m.id)||existingIds.has(m.id))return false;dedup.add(m.id);return true;})
+      const deduped=all.filter(m=>{if(dedup.has(m.id)||existingIds.has(m.id))return false;dedup.add(m.id);return true;})
         .sort((a,b)=>(b.vote_count||0)-(a.vote_count||0));
+      deduped.allFailed=dirNames.length>0&&errCount===dirNames.length;
+      return deduped;
     };
 
     // ── Helper: append new films to grid DOM ──
@@ -2015,6 +2034,11 @@ async function loadDiscoverTab(tab,page=1) {
       if(wildcardPool.length)tier1=[...tier1,wildcardPool[Math.floor(Math.random()*wildcardPool.length)]];
       if(!tier1.length){S.research.films=[];S.research.loading=false;S.tab='discover';render();return;}
       const result=await fetchDirFilms(tier1,new Set(),500,8);
+      if(result.allFailed){
+        S.research.films=[]; S.research.error=true; S.research.loading=false;
+        S.tab='discover';render();return;
+      }
+      S.research.error=false;
       for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}
       window._rCache['clubpicks']=result;
       window._rCache['clubpicks_dirs']=allDirs; // Full ranked list for load more
@@ -2026,10 +2050,15 @@ async function loadDiscoverTab(tab,page=1) {
       const existingIds=new Set((window._rCache['clubpicks']||[]).map(m=>m.id));
       const tier1=window._rCache['clubpicks_dirs'].slice(0,8);
       const newFilms=await fetchDirFilms(tier1,existingIds,300,8);
+      S.research.loading=false;
+      if(newFilms.allFailed){
+        const btn=document.getElementById('load-more-btn');
+        if(btn){btn.textContent="Couldn't load more — Retry";btn.style.pointerEvents='';btn.style.color='#a04030';}
+        return;
+      }
       const combined=[...(window._rCache['clubpicks']||[]),...newFilms];
       window._rCache['clubpicks']=combined;
       S.research.films=combined; S.research.page=2;
-      S.research.loading=false;
       appendToGrid(newFilms,true); // show load more for page 3
       S.tab='discover';return;
     }
@@ -2039,10 +2068,15 @@ async function loadDiscoverTab(tab,page=1) {
       const existingIds=new Set((window._rCache['clubpicks']||[]).map(m=>m.id));
       const tier2=window._rCache['clubpicks_dirs'].slice(8,14);
       const newFilms=await fetchDirFilms(tier2,existingIds,200,8);
+      S.research.loading=false;
+      if(newFilms.allFailed){
+        const btn=document.getElementById('load-more-btn');
+        if(btn){btn.textContent="Couldn't load more — Retry";btn.style.pointerEvents='';btn.style.color='#a04030';}
+        return;
+      }
       const combined=[...(window._rCache['clubpicks']||[]),...newFilms];
       window._rCache['clubpicks']=combined;
       S.research.films=combined; S.research.page=3;
-      S.research.loading=false;
       appendToGrid(newFilms,false); // no more after page 3
       S.tab='discover';return;
     }
@@ -2067,9 +2101,10 @@ async function loadDiscoverTab(tab,page=1) {
     }
     try{
       const r=await fetch(url);const d=await r.json();
+      if(isTmdbError(d))throw new Error(d.status_message||'TMDB request failed');
       const films=(d.results||[]).filter(m=>m.poster_path);
       if(page===1){
-        window._rCache[tab]=films; S.research.films=films;
+        window._rCache[tab]=films; S.research.films=films; S.research.error=false;
         S.research.totalPages=d.total_pages||1;
         S.research.page=1;
       } else {
@@ -2107,7 +2142,15 @@ async function loadDiscoverTab(tab,page=1) {
         }
         return; // Skip full render
       }
-    }catch(e){if(page===1)S.research.films=[];}
+    }catch(e){
+      if(page===1){S.research.films=[];S.research.error=true;}
+      else{
+        S.research.loading=false;
+        const btn=document.getElementById('load-more-btn');
+        if(btn){btn.textContent="Couldn't load more — Retry";btn.style.pointerEvents='';btn.style.color='#a04030';}
+        return; // preserve current grid/scroll position instead of a full re-render
+      }
+    }
   }
   S.research.loading=false;
   S.tab='discover';render();
@@ -2120,11 +2163,12 @@ async function loadDirectorFilms(personId,directorName) {
     let vid=personId;
     try{const sp=await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB}&query=${encodeURIComponent(directorName)}&language=en-US`);const sd=await sp.json();const match=(sd.results||[]).find(p=>p.known_for_department==='Directing')||(sd.results||[])[0];if(match)vid=match.id;}catch(e){}
     const r=await fetch(`https://api.themoviedb.org/3/person/${vid}/movie_credits?api_key=${TMDB}`);const d=await r.json();
+    if(isTmdbError(d))throw new Error(d.status_message||'TMDB request failed');
     let films=(d.crew||[]).filter(m=>m.job==='Director'&&m.poster_path);
     if(!films.length)films=(d.crew||[]).filter(m=>m.department==='Directing'&&m.poster_path);
     films=films.sort((a,b)=>(b.vote_count||0)-(a.vote_count||0)).filter((m,i,arr)=>arr.findIndex(x=>x.id===m.id)===i).slice(0,18);
-    window._rCache[key]=films; S.research.films=films;
-  }catch(e){S.research.films=[];}
+    window._rCache[key]=films; S.research.films=films; S.research.error=false;
+  }catch(e){S.research.films=[];S.research.error=true;}
   S.research.loading=false;
   S.tab='discover';render();
 }
