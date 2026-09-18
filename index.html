@@ -396,8 +396,16 @@ body{font-family:'Special Elite',serif;color:#F9F0DC}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, writeBatch, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const APP_VERSION = '2.41.65';
+const APP_VERSION = '2.42.0';
 // ── VERSION CHECK ──
+function versionGt(a,b) {
+  const pa=String(a).split('.').map(Number), pb=String(b).split('.').map(Number);
+  for(let i=0;i<Math.max(pa.length,pb.length);i++){
+    const x=pa[i]||0, y=pb[i]||0;
+    if(x!==y)return x>y;
+  }
+  return false;
+}
 async function checkForUpdate() {
   if(sessionStorage.getItem('cmc_checked')===APP_VERSION) return;
   sessionStorage.setItem('cmc_checked', APP_VERSION);
@@ -408,7 +416,7 @@ async function checkForUpdate() {
     const res = await fetch(rawUrl, {cache:'no-store'});
     const text = await res.text();
     const match = text.match(/APP_VERSION\s*=\s*['"]([^'"]+)['"]/);
-    if(match && match[1] !== APP_VERSION && match[1] > APP_VERSION) {
+    if(match && match[1] !== APP_VERSION && versionGt(match[1], APP_VERSION)) {
       sessionStorage.removeItem('cmc_checked');
       const badge=document.getElementById('version-badge');
       if(badge){
