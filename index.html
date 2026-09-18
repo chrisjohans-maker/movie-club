@@ -719,7 +719,7 @@ function render() {
   if(S.tab==='vote'){c.innerHTML=buildVoteTab();}
   else if(S.tab==='score')c.innerHTML=buildScoreTab();
   else if(S.tab==='home')c.innerHTML=buildHome();
-  else if(S.tab==='discover'){const dirs=window._rCache?.clubpicks_dirs;window._rCache={};if(dirs)window._rCache.clubpicks_dirs=dirs;c.innerHTML=buildDiscover();bindDiscover();}
+  else if(S.tab==='discover'){c.innerHTML=buildDiscover();bindDiscover();}
   else c.innerHTML=buildHome();
 
   bindEvents();
@@ -1979,7 +1979,15 @@ async function loadDiscoverTab(tab,page=1) {
         S.tab='discover';render();return;
       }
       const allDirs=buildDirScores();
-      const tier1=allDirs.slice(0,8);
+      let tier1=allDirs.slice(0,8);
+      if(!tier1.length){
+        // No watch/interest history yet — seed from the curated director list so Club Picks isn't empty
+        const shuffled=[...RESEARCH_DIRS.map(d=>d.name)].sort(()=>Math.random()-0.5);
+        tier1=shuffled.slice(0,8);
+      }
+      // Wildcard slot — pull in one curated director outside the top-8 ranked set for variety
+      const wildcardPool=RESEARCH_DIRS.map(d=>d.name).filter(n=>!tier1.includes(n));
+      if(wildcardPool.length)tier1=[...tier1,wildcardPool[Math.floor(Math.random()*wildcardPool.length)]];
       if(!tier1.length){S.research.films=[];S.research.loading=false;S.tab='discover';render();return;}
       const result=await fetchDirFilms(tier1,new Set(),500,8);
       for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}
@@ -2022,9 +2030,14 @@ async function loadDiscoverTab(tab,page=1) {
     if(tab==='worldcinema') url=`${base}&sort_by=vote_average.desc&vote_count.gte=1000&with_original_language=fr%7Cit%7Cja%7Cko%7Cde%7Ces%7Cpt%7Czh%7Cru%7Cfa%7Cda%7Csv%7Cno%7Cpl%7Cro%7Ctr&vote_average.gte=7.2&without_genres=16%2C10751%2C35&page=${page}`;
     if(tab==='classic') url=`${base}&sort_by=vote_average.desc&vote_count.gte=2000&primary_release_date.lte=1979-12-31&without_genres=16%2C10751%2C35%2C14&vote_average.gte=7.5&page=${page}`;
     if(!url){S.research.loading=false;return;}
-    // Random starting page for variety (pages 1-4, only on first load)
+    // Random starting page for variety (pages 1-4, only on first load) — avoid repeating a page already shown this session
     if(page===1){
-      const randPage=Math.floor(Math.random()*4)+1;
+      const seenKey=tab+'_seenPages';
+      const seen=window._rCache[seenKey]=window._rCache[seenKey]||[];
+      let pool=[1,2,3,4].filter(p=>!seen.includes(p));
+      if(!pool.length){seen.length=0;pool=[1,2,3,4];}
+      const randPage=pool[Math.floor(Math.random()*pool.length)];
+      seen.push(randPage);
       url=url.replace(`&page=${page}`,`&page=${randPage}`);
     }
     try{
