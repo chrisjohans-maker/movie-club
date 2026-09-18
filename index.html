@@ -1844,6 +1844,9 @@ function buildDCard(m, seen) {
 
 function buildDiscoverGrid(films,seen) {
   const rs=S.research;
+  // Defensive dedup — guarantees no film ever renders twice in the same grid, regardless of upstream state.
+  const seenIds=new Set();
+  films=films.filter(m=>{if(seenIds.has(m.id))return false;seenIds.add(m.id);return true;});
   if(!films.length){
     if(rs.error)return `<div class="empty">Couldn't reach the movie database.<div id="discover-retry-btn" style="margin-top:.6rem;font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:#F5C842;cursor:pointer;text-decoration:underline">Retry</div></div>`;
     return `<div class="empty">No films to display.</div>`;
@@ -2102,14 +2105,20 @@ async function loadDiscoverTab(tab,page=1) {
     try{
       const r=await fetch(url);const d=await r.json();
       if(isTmdbError(d))throw new Error(d.status_message||'TMDB request failed');
-      const films=(d.results||[]).filter(m=>m.poster_path);
+      const rawFilms=(d.results||[]).filter(m=>m.poster_path);
+      const dedupSelf=new Set();
+      const films0=rawFilms.filter(m=>{if(dedupSelf.has(m.id))return false;dedupSelf.add(m.id);return true;});
       if(page===1){
-        window._rCache[tab]=films; S.research.films=films; S.research.error=false;
+        window._rCache[tab]=films0; S.research.films=films0; S.research.error=false;
         S.research.totalPages=d.total_pages||1;
         S.research.page=1;
       } else {
         // Append cards directly to existing grid — no full render
         const existing=window._rCache[tab]||[];
+        const existingIds=new Set(existing.map(m=>m.id));
+        // TMDB pagination isn't fully stable across requests when scores tie — a movie already
+        // shown on an earlier page can come back on a later one, so filter those out here.
+        const films=films0.filter(m=>!existingIds.has(m.id));
         const combined=[...existing,...films];
         window._rCache[tab]=combined; S.research.films=combined;
         S.research.page=page;
