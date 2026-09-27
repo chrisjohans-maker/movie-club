@@ -406,7 +406,7 @@ body{font-family:'Special Elite',serif;color:#F9F0DC}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc, writeBatch, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const APP_VERSION = '2.44.0';
+const APP_VERSION = '2.45.0';
 // ── VERSION CHECK ──
 function versionGt(a,b) {
   const pa=String(a).split('.').map(Number), pb=String(b).split('.').map(Number);
@@ -908,6 +908,7 @@ function buildHome() {
           ${sc.tagline?`<div style="font-family:'Playfair Display',serif;font-style:italic;font-size:10px;color:#a07a30;margin-bottom:.3rem;line-height:1.4">"${esc(sc.tagline)}"</div>`:''}
           <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#c8a848;margin-top:.2rem">${fmtDate(sc.showtime)}</div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:#8a7050">Doors ${fmtTime(sc.doorsTime)} · Show ${fmtTime(sc.showtime)}</div>
+          ${sc.note?`<div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1px;color:#e0a030;background:#1a1000;border:1px solid #4a3010;padding:4px 7px;margin-top:.4rem">⚠ ${esc(sc.note)}</div>`:''}
         </div>
         ${sc.poster
           ?`<img src="${sc.poster}" style="width:120px;object-fit:cover;object-position:center top;background:#080400;display:block;flex-shrink:0;border-left:1px solid #1a1000;margin-right:8px;align-self:stretch" loading="lazy" alt="">`
@@ -1027,7 +1028,8 @@ function buildScreening() {
     ${sc.year||sc.genre||sc.runtime?`<div class="sc-sub">${[sc.year,sc.genre,sc.runtime?sc.runtime+'m':null].filter(Boolean).join(' · ')}</div>`:''}
     ${sc.picker?`<span style="font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:2px;color:${(PROFILES[sc.picker]||PROFILES['Chris']).color};border:1px solid ${(PROFILES[sc.picker]||PROFILES['Chris']).border};padding:2px 6px;display:inline-block;margin-bottom:.3rem">${esc(sc.picker)}'s Pick</span>`:''}
     <div class="sc-date">${fmtDate(sc.showtime)}</div>
-    <div class="sc-times">Doors ${fmtTime(sc.doorsTime)} &nbsp;·&nbsp; Showtime ${fmtTime(sc.showtime)}</div>`;
+    <div class="sc-times">Doors ${fmtTime(sc.doorsTime)} &nbsp;·&nbsp; Showtime ${fmtTime(sc.showtime)}</div>
+    ${sc.note?`<div style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1px;color:#e0a030;background:#1a1000;border:1px solid #4a3010;padding:6px 9px;margin:.4rem 0">⚠ ${esc(sc.note)}</div>`:''}`;
   if(!live)html+=`<div class="countdown" id="countdown">
     <div class="cd"><div class="cd-val" id="cd-d">--</div><div class="cd-label">Days</div></div>
     <div class="cd"><div class="cd-val" id="cd-h">--</div><div class="cd-label">Hours</div></div>
@@ -1642,6 +1644,7 @@ function buildScheduleForm() {
     <div class="field"><label>Date</label><input type="date" id="s-date" value="${defaultDate}"/></div>
     <div class="field"><label>Doors Time</label><input type="time" id="s-doors" value="19:00"/></div>
     <div class="field"><label>Showtime</label><input type="time" id="s-show" value="19:30"/></div>
+    <div class="field"><label>Note (optional)</label><input type="text" id="s-note" placeholder="e.g. subject to change" maxlength="140"/></div>
     <div class="form-actions">
       <button class="btn btn-gold" id="schedule-submit-btn">Schedule</button>
       <button class="btn btn-dim" id="form-back-btn">Cancel</button>
@@ -1658,9 +1661,10 @@ async function submitSchedule() {
   const date=document.getElementById('s-date')?.value;
   const doors=document.getElementById('s-doors')?.value;
   const show=document.getElementById('s-show')?.value;
+  const note=document.getElementById('s-note')?.value.trim();
   if(!filmId||!date||!show)return;
   const film=S.watchlist.find(m=>m.id===filmId); if(!film)return;
-  await setDoc(doc(db,'config','screening'),{movieId:film.id,title:film.title,poster:film.poster||null,year:film.year||'',genre:film.genre||'',runtime:film.runtime||null,doorsTime:new Date(`${date}T${doors}`).toISOString(),showtime:new Date(`${date}T${show}`).toISOString(),rsvp:{},watchedId:null,scheduledBy:S.user,autoMoved:false});
+  await setDoc(doc(db,'config','screening'),{movieId:film.id,title:film.title,poster:film.poster||null,year:film.year||'',genre:film.genre||'',runtime:film.runtime||null,doorsTime:new Date(`${date}T${doors}`).toISOString(),showtime:new Date(`${date}T${show}`).toISOString(),rsvp:{},watchedId:null,scheduledBy:S.user,autoMoved:false,note:note||null});
   await setDoc(doc(db,'config','dateRequests'),{requests:{}});
   await setDoc(doc(db,'config','screeningSeen'),{});
   S.fd={}; closeFormOverlay(); S.showForm=false; S.tab='screening';
